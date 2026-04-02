@@ -252,4 +252,109 @@ describe("useNumberFieldState", () => {
       expect(onChange).not.toHaveBeenCalledWith(200);
     });
   });
+
+  describe("allowOutOfRange", () => {
+    it("allows typing values beyond maxValue when allowOutOfRange=true", () => {
+      const { result } = renderHook(() =>
+        useNumberFieldState({
+          locale: "en-US",
+          maxValue: 100,
+          clampBehavior: "blur",
+          allowOutOfRange: true,
+        })
+      );
+      act(() => result.current.setInputValue("200"));
+      expect(result.current.numberValue).toBe(200);
+    });
+
+    it("does NOT clamp on blur when allowOutOfRange=true", () => {
+      const { result } = renderHook(() =>
+        useNumberFieldState({
+          locale: "en-US",
+          maxValue: 100,
+          clampBehavior: "blur",
+          allowOutOfRange: true,
+        })
+      );
+      act(() => result.current.setInputValue("200"));
+      act(() => result.current.commit());
+      expect(result.current.numberValue).toBe(200);
+    });
+
+    it("still clamps on blur when allowOutOfRange=false (default)", () => {
+      const { result } = renderHook(() =>
+        useNumberFieldState({
+          locale: "en-US",
+          maxValue: 100,
+          clampBehavior: "blur",
+        })
+      );
+      act(() => result.current.setInputValue("200"));
+      act(() => result.current.commit());
+      expect(result.current.numberValue).toBe(100);
+    });
+
+    it("does not apply strict clamping when allowOutOfRange=true", () => {
+      const { result } = renderHook(() =>
+        useNumberFieldState({
+          locale: "en-US",
+          maxValue: 100,
+          clampBehavior: "strict",
+          allowOutOfRange: true,
+        })
+      );
+      act(() => result.current.setInputValue("150"));
+      expect(result.current.numberValue).toBe(150);
+    });
+
+    it("canIncrement is true at maxValue when allowOutOfRange=true", () => {
+      const { result } = renderHook(() =>
+        useNumberFieldState({
+          locale: "en-US",
+          defaultValue: 100,
+          maxValue: 100,
+          allowOutOfRange: true,
+        })
+      );
+      expect(result.current.canIncrement).toBe(true);
+    });
+
+    it("canDecrement is true at minValue when allowOutOfRange=true", () => {
+      const { result } = renderHook(() =>
+        useNumberFieldState({
+          locale: "en-US",
+          defaultValue: 0,
+          minValue: 0,
+          allowOutOfRange: true,
+        })
+      );
+      expect(result.current.canDecrement).toBe(true);
+    });
+  });
+
+  describe("isScrubbing", () => {
+    it("starts as false", () => {
+      const { result } = renderHook(() =>
+        useNumberFieldState({ locale: "en-US" })
+      );
+      expect(result.current.isScrubbing).toBe(false);
+    });
+
+    it("can be set to true via setIsScrubbing", () => {
+      const { result } = renderHook(() =>
+        useNumberFieldState({ locale: "en-US" })
+      );
+      act(() => result.current.setIsScrubbing(true));
+      expect(result.current.isScrubbing).toBe(true);
+    });
+
+    it("can be set back to false", () => {
+      const { result } = renderHook(() =>
+        useNumberFieldState({ locale: "en-US" })
+      );
+      act(() => result.current.setIsScrubbing(true));
+      act(() => result.current.setIsScrubbing(false));
+      expect(result.current.isScrubbing).toBe(false);
+    });
+  });
 });

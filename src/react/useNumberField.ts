@@ -1,9 +1,20 @@
-import { useCallback, useId, useLayoutEffect, useMemo, useRef } from "react";
+"use client";
+
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef } from "react";
 import type { NumberFieldAria, NumberFieldState, UseNumberFieldProps } from "../core/types.js";
 import { createFormatter } from "../core/formatter.js";
 import { createParser } from "../core/parser.js";
 import { computeNewCursorPosition } from "../core/cursor.js";
 import { normalizeDigits } from "../core/normalizer.js";
+import { usePressAndHold } from "./usePressAndHold.js";
+
+// ── Tiny helper to safely escape regex special chars (including hyphen) ──────
+
+function escapeRegex(s: string): string {
+  // Escaping hyphen prevents it from being misinterpreted as a range indicator
+  // inside a character class (e.g. [.--] would be invalid without this)
+  return s.replace(/[.*+?^${}()|[\]\\\-]/g, "\\$&");
+}
 
 export function useNumberField(
   props: UseNumberFieldProps,
@@ -30,6 +41,9 @@ export function useNumberField(
     maximumFractionDigits,
     minimumFractionDigits,
     fixedDecimalScale,
+    copyBehavior = "formatted",
+    stepHoldDelay = 400,
+    stepHoldInterval = 200,
   } = props;
 
   const {
@@ -41,6 +55,8 @@ export function useNumberField(
   const autoId = useId();
   const inputId = props.id ?? `numra-${autoId}`;
   const labelId = `${inputId}-label`;
+  const descriptionId = `${inputId}-description`;
+  const errorId = `${inputId}-error`;
 
   // ── Formatter & parser (kept in sync with state's) ──────────────────────
   const formatter = useMemo(
@@ -91,6 +107,28 @@ export function useNumberField(
   // Run after every inputValue change
   }, [state.inputValue, inputRef]);
 
+  // ── Mouse wheel (non-passive native listener) ────────────────────────────
+  // React's synthetic onWheel is passive in React 17+; it cannot call
+  // preventDefault(). We must attach a native, non-passive listener instead.
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el || !allowMouseWheel) return;
+
+    const handler = (e: WheelEvent) => {
+      if (disabled || readOnly) return;
+      if (document.activeElement !== el) return;
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        state.increment();
+      } else {
+        state.decrement();
+      }
+    };
+
+    el.addEventListener("wheel", handler, { passive: false });
+    return () => el.removeEventListener("wheel", handler);
+  }, [allowMouseWheel, disabled, readOnly, state, inputRef]);
+
   // ── onChange handler ─────────────────────────────────────────────────────
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,6 +175,75 @@ export function useNumberField(
       state.setInputValue(displayValue);
     },
     [formatter, parser, liveFormat, state]
+  );
+
+  // ── Paste handler ────────────────────────────────────────────────────────
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent<HTMLInputElement>) => {
+      e.preventDefault();
+      const text = e.clipboardData.getData("text/plain");
+      if (!text) return;
+
+      // 1. Strip common currency symbols (global currencies)
+      const stripped = text
+        .replace(/[€$£¥₹₺₽﷼฿₩¢₦₨₪₫₱]/g, "")
+        .trim();
+
+      // 2. Normalize non-Latin digits to ASCII
+      const normalized = normalizeDigits(stripped);
+
+      // 3. Try parse with current locale parser
+      const result = parser.parse(normalized);
+
+      if (result.value !== null) {
+        const formatted = formatter.format(result.value);
+        state.setInputValue(formatted);
+        pendingCursor.current = formatted.length;
+        return;
+      }
+
+      // 4. Fallback: strip everything except digits, locale decimal, minus sign
+      const localeInfo = formatter.getLocaleInfo();
+      const allowedCharsPattern = new RegExp(
+        `[^0-9${escapeRegex(localeInfo.decimalSeparator)}${escapeRegex(localeInfo.minusSign)}-]`,
+        "g"
+      );
+      const stripped2 = normalized.replace(allowedCharsPattern, "");
+      const result2 = parser.parse(stripped2);
+
+      if (result2.value !== null) {
+        const formatted = formatter.format(result2.value);
+        state.setInputValue(formatted);
+        pendingCursor.current = formatted.length;
+      }
+      // If still invalid, silently discard — don't paste garbage into the field
+    },
+    [parser, formatter, state]
+  );
+
+  // ── Copy / Cut handlers ──────────────────────────────────────────────────
+  const handleCopy = useCallback(
+    (e: React.ClipboardEvent<HTMLInputElement>) => {
+      if (copyBehavior === "formatted") return; // browser handles it natively
+
+      e.preventDefault();
+      const text = String(state.numberValue ?? "");
+      e.clipboardData.setData("text/plain", text);
+    },
+    [copyBehavior, state.numberValue]
+  );
+
+  const handleCut = useCallback(
+    (e: React.ClipboardEvent<HTMLInputElement>) => {
+      if (copyBehavior === "formatted") return; // browser handles it
+
+      e.preventDefault();
+      const text = String(state.numberValue ?? "");
+      e.clipboardData.setData("text/plain", text);
+      // Clear the field after cut
+      state.setInputValue("");
+    },
+    [copyBehavior, state]
   );
 
   // ── Keyboard handler ─────────────────────────────────────────────────────
@@ -195,21 +302,6 @@ export function useNumberField(
     [disabled, readOnly, state, largeStep, smallStep, minValue, maxValue]
   );
 
-  // ── Wheel handler ────────────────────────────────────────────────────────
-  const handleWheel = useCallback(
-    (e: React.WheelEvent<HTMLInputElement>) => {
-      if (!allowMouseWheel || disabled || readOnly) return;
-      if (document.activeElement !== inputRef.current) return;
-      e.preventDefault();
-      if (e.deltaY < 0) {
-        state.increment();
-      } else {
-        state.decrement();
-      }
-    },
-    [allowMouseWheel, disabled, readOnly, state, inputRef]
-  );
-
   // ── Blur handler ─────────────────────────────────────────────────────────
   const handleBlur = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
@@ -219,8 +311,20 @@ export function useNumberField(
     [state, onBlur]
   );
 
+  // ── Press-and-hold for increment/decrement buttons ───────────────────────
+  const incrementHold = usePressAndHold(() => state.increment(), {
+    delay: stepHoldDelay,
+    interval: stepHoldInterval,
+    disabled: disabled || !state.canIncrement,
+  });
+
+  const decrementHold = usePressAndHold(() => state.decrement(), {
+    delay: stepHoldDelay,
+    interval: stepHoldInterval,
+    disabled: disabled || !state.canDecrement,
+  });
+
   // ── ARIA valuetext ───────────────────────────────────────────────────────
-  // Use a more verbose description for screen readers.
   const ariaValueText = useMemo(() => {
     if (state.numberValue == null) return undefined;
     return formatter.format(state.numberValue);
@@ -228,6 +332,12 @@ export function useNumberField(
 
   // ── RTL detection ────────────────────────────────────────────────────────
   const localeInfo = formatter.getLocaleInfo();
+
+  // ── Out-of-range detection (for aria-invalid + data-invalid) ────────────
+  const isOutOfRange =
+    state.numberValue !== null &&
+    ((minValue !== undefined && state.numberValue < minValue) ||
+      (maxValue !== undefined && state.numberValue > maxValue));
 
   // ── Prop maps ────────────────────────────────────────────────────────────
 
@@ -259,6 +369,7 @@ export function useNumberField(
     "aria-disabled": disabled || undefined,
     "aria-readonly": readOnly || undefined,
     "aria-required": required || undefined,
+    "aria-invalid": isOutOfRange ? true : undefined,
     disabled,
     readOnly,
     required,
@@ -267,15 +378,19 @@ export function useNumberField(
     onKeyDown: handleKeyDown,
     onBlur: handleBlur,
     onFocus: onFocus as React.FocusEventHandler<HTMLInputElement>,
-    onWheel: allowMouseWheel ? handleWheel : undefined,
+    onPaste: handlePaste,
+    onCopy: copyBehavior !== "formatted" ? handleCopy : undefined,
+    onCut: copyBehavior !== "formatted" ? handleCut : undefined,
     // RTL: numbers are always LTR, align-right in RTL contexts
+    // unicodeBidi: embed isolates the LTR number from surrounding RTL text
     style: localeInfo.isRTL
-      ? { direction: "ltr", textAlign: "right" }
+      ? { direction: "ltr", textAlign: "right", unicodeBidi: "embed" }
       : undefined,
     // Data attributes for CSS styling
     "data-disabled": disabled ? "" : undefined,
     "data-readonly": readOnly ? "" : undefined,
     "data-required": required ? "" : undefined,
+    "data-invalid": isOutOfRange ? "" : undefined,
   } as React.InputHTMLAttributes<HTMLInputElement>;
 
   const hiddenInputProps: React.InputHTMLAttributes<HTMLInputElement> | null =
@@ -293,7 +408,8 @@ export function useNumberField(
     tabIndex: -1,
     "aria-label": "Increase",
     disabled: disabled || !state.canIncrement,
-    onClick: () => state.increment(),
+    // Press-and-hold handlers replace simple onClick
+    ...incrementHold,
     "data-disabled": disabled || !state.canIncrement ? "" : undefined,
   } as React.ButtonHTMLAttributes<HTMLButtonElement>;
 
@@ -302,9 +418,20 @@ export function useNumberField(
     tabIndex: -1,
     "aria-label": "Decrease",
     disabled: disabled || !state.canDecrement,
-    onClick: () => state.decrement(),
+    // Press-and-hold handlers replace simple onClick
+    ...decrementHold,
     "data-disabled": disabled || !state.canDecrement ? "" : undefined,
   } as React.ButtonHTMLAttributes<HTMLButtonElement>;
+
+  const descriptionProps: React.HTMLAttributes<HTMLElement> = {
+    id: descriptionId,
+  };
+
+  const errorMessageProps: React.HTMLAttributes<HTMLElement> = {
+    id: errorId,
+    role: "alert",
+    "aria-live": "polite",
+  } as React.HTMLAttributes<HTMLElement>;
 
   return {
     labelProps,
@@ -313,5 +440,7 @@ export function useNumberField(
     hiddenInputProps,
     incrementButtonProps,
     decrementButtonProps,
+    descriptionProps,
+    errorMessageProps,
   };
 }

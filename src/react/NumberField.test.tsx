@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NumberField } from "./NumberField.js";
 
@@ -256,5 +256,164 @@ describe("NumberField data attributes", () => {
     const { container } = renderField({ disabled: true });
     const root = container.firstChild as HTMLElement;
     expect(root.getAttribute("data-disabled")).toBe("");
+  });
+});
+
+// ── Phase 2 tests ────────────────────────────────────────────────────────────
+
+describe("NumberField paste handling", () => {
+  it("pastes a plain number string", async () => {
+    const user = userEvent.setup();
+    renderField({ locale: "en-US" });
+    const input = screen.getByRole("spinbutton");
+    await user.click(input);
+    await user.paste("1234.56");
+    expect(input).toHaveValue("1,234.56");
+  });
+
+  it("strips currency symbols when pasting", async () => {
+    const user = userEvent.setup();
+    renderField({ locale: "en-US" });
+    const input = screen.getByRole("spinbutton");
+    await user.click(input);
+    await user.paste("$1,234.56");
+    expect(input).toHaveValue("1,234.56");
+  });
+
+  it("strips € symbol when pasting", async () => {
+    const user = userEvent.setup();
+    renderField({ locale: "en-US" });
+    const input = screen.getByRole("spinbutton");
+    await user.click(input);
+    await user.paste("€9,876");
+    expect(input).toHaveValue("9,876");
+  });
+
+  it("does not paste invalid non-numeric garbage", async () => {
+    const user = userEvent.setup();
+    renderField({ locale: "en-US" });
+    const input = screen.getByRole("spinbutton");
+    const initialValue = input.getAttribute("value") ?? "";
+    await user.click(input);
+    await user.paste("hello world");
+    // Should not change the value
+    expect(input.getAttribute("value")).toBe(initialValue);
+  });
+});
+
+describe("NumberField copy behavior", () => {
+  it("uses raw numberValue when copyBehavior='raw'", () => {
+    render(
+      <NumberField.Root defaultValue={1234.56} locale="en-US" copyBehavior="raw">
+        <NumberField.Input data-testid="input" />
+      </NumberField.Root>
+    );
+    const input = screen.getByTestId("input");
+    const mockSetData = vi.fn();
+    const mockGetData = vi.fn(() => "");
+
+    fireEvent.copy(input, {
+      clipboardData: { setData: mockSetData, getData: mockGetData },
+    });
+
+    expect(mockSetData).toHaveBeenCalledWith("text/plain", "1234.56");
+  });
+});
+
+describe("NumberField allowOutOfRange", () => {
+  it("allows value beyond maxValue when allowOutOfRange=true", () => {
+    render(
+      <NumberField.Root locale="en-US" maxValue={100} allowOutOfRange clampBehavior="blur">
+        <NumberField.Input data-testid="input" />
+      </NumberField.Root>
+    );
+    const input = screen.getByTestId("input");
+    // Simulate typing "150" and blurring
+    fireEvent.change(input, { target: { value: "150" } });
+    fireEvent.blur(input);
+    expect(input).toHaveValue("150");
+  });
+
+  it("sets aria-invalid when value exceeds maxValue", () => {
+    render(
+      <NumberField.Root
+        locale="en-US"
+        defaultValue={150}
+        maxValue={100}
+        allowOutOfRange
+        clampBehavior="none"
+      >
+        <NumberField.Input data-testid="input" />
+      </NumberField.Root>
+    );
+    expect(screen.getByTestId("input")).toHaveAttribute("aria-invalid", "true");
+  });
+
+  it("sets data-invalid when value is out of range", () => {
+    render(
+      <NumberField.Root
+        locale="en-US"
+        defaultValue={150}
+        maxValue={100}
+        allowOutOfRange
+        clampBehavior="none"
+      >
+        <NumberField.Input data-testid="input" />
+      </NumberField.Root>
+    );
+    expect(screen.getByTestId("input")).toHaveAttribute("data-invalid", "");
+  });
+
+  it("does not set aria-invalid when value is in range", () => {
+    render(
+      <NumberField.Root locale="en-US" defaultValue={50} maxValue={100}>
+        <NumberField.Input data-testid="input" />
+      </NumberField.Root>
+    );
+    expect(screen.getByTestId("input")).not.toHaveAttribute("aria-invalid");
+  });
+
+  it("increment/decrement buttons remain enabled at boundary with allowOutOfRange", () => {
+    render(
+      <NumberField.Root
+        locale="en-US"
+        defaultValue={100}
+        maxValue={100}
+        allowOutOfRange
+      >
+        <NumberField.Group>
+          <NumberField.Decrement data-testid="decrement" />
+          <NumberField.Input />
+          <NumberField.Increment data-testid="increment" />
+        </NumberField.Group>
+      </NumberField.Root>
+    );
+    expect(screen.getByTestId("increment")).not.toBeDisabled();
+  });
+});
+
+describe("NumberField Description and ErrorMessage", () => {
+  it("renders Description with correct id", () => {
+    render(
+      <NumberField.Root locale="en-US">
+        <NumberField.Input data-testid="input" />
+        <NumberField.Description data-testid="desc">Enter amount</NumberField.Description>
+      </NumberField.Root>
+    );
+    const desc = screen.getByTestId("desc");
+    expect(desc).toBeInTheDocument();
+    expect(desc.id).toBeTruthy();
+  });
+
+  it("renders ErrorMessage with role=alert", () => {
+    render(
+      <NumberField.Root locale="en-US">
+        <NumberField.Input />
+        <NumberField.ErrorMessage data-testid="err">Invalid value</NumberField.ErrorMessage>
+      </NumberField.Root>
+    );
+    const err = screen.getByTestId("err");
+    expect(err).toBeInTheDocument();
+    expect(err).toHaveAttribute("role", "alert");
   });
 });

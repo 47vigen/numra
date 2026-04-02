@@ -93,6 +93,13 @@ export interface UseNumberFieldStateOptions {
   readOnly?: boolean;
   /** Mark the field as required */
   required?: boolean;
+  /**
+   * Allow values outside min/max to be typed and committed without clamping.
+   * Useful when server-side validation handles clamping.
+   * When true, aria-invalid is set when value is out of range.
+   * default: false
+   */
+  allowOutOfRange?: boolean;
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -106,6 +113,10 @@ export interface NumberFieldState {
   canIncrement: boolean;
   /** Whether decrement is currently possible */
   canDecrement: boolean;
+  /** Whether the ScrubArea is currently being dragged */
+  isScrubbing: boolean;
+  /** Update the isScrubbing state (called by useScrubArea) */
+  setIsScrubbing: (val: boolean) => void;
   /** Update display string (triggers parse + onChange) */
   setInputValue: (val: string) => void;
   /** Directly set the numeric value (triggers format + onChange) */
@@ -138,6 +149,17 @@ export interface UseNumberFieldProps extends UseNumberFieldStateOptions {
   id?: string;
   /** Enable mouse-wheel increment/decrement */
   allowMouseWheel?: boolean;
+  /**
+   * Controls what is placed in the clipboard on copy/cut.
+   * - 'formatted' (default): browser-native copy of display string
+   * - 'raw': numberValue as a plain JS number string (e.g. "1234.56")
+   * - 'number': alias for 'raw'
+   */
+  copyBehavior?: "formatted" | "raw" | "number";
+  /** Milliseconds before press-and-hold repeat starts (default: 400) */
+  stepHoldDelay?: number;
+  /** Initial milliseconds between repeats during press-and-hold (default: 200) */
+  stepHoldInterval?: number;
   onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
@@ -149,6 +171,22 @@ export interface NumberFieldAria {
   hiddenInputProps: React.InputHTMLAttributes<HTMLInputElement> | null;
   incrementButtonProps: React.ButtonHTMLAttributes<HTMLButtonElement>;
   decrementButtonProps: React.ButtonHTMLAttributes<HTMLButtonElement>;
+  descriptionProps: React.HTMLAttributes<HTMLElement>;
+  errorMessageProps: React.HTMLAttributes<HTMLElement>;
+}
+
+// ── ScrubArea ─────────────────────────────────────────────────────────────────
+
+export interface ScrubAreaOptions {
+  /**
+   * Axis to scrub on.
+   * - 'horizontal' (default): dragging right increments, left decrements
+   * - 'vertical': dragging up increments, down decrements
+   * - 'both': uses whichever axis has greater movement
+   */
+  direction?: "horizontal" | "vertical" | "both";
+  /** Pixels of drag movement required for one step (default: 4) */
+  pixelSensitivity?: number;
 }
 
 // ── Component API ─────────────────────────────────────────────────────────────
@@ -161,6 +199,19 @@ export type StateRenderFn = (
 export type RenderProp =
   | React.ReactElement
   | StateRenderFn;
+
+export interface ScrubAreaProps
+  extends ScrubAreaOptions,
+    Omit<React.HTMLAttributes<HTMLSpanElement>, "children"> {
+  render?: RenderProp;
+  children?: React.ReactNode;
+}
+
+export interface ScrubAreaCursorProps
+  extends Omit<React.HTMLAttributes<HTMLSpanElement>, "children"> {
+  render?: RenderProp;
+  children?: React.ReactNode;
+}
 
 export interface NumberFieldRootProps extends UseNumberFieldProps {
   children?: React.ReactNode;
@@ -176,7 +227,8 @@ export interface NumberFieldRootProps extends UseNumberFieldProps {
         | "keyboard"
         | "increment"
         | "decrement"
-        | "wheel";
+        | "wheel"
+        | "scrub";
       formattedValue: string;
       event?: React.SyntheticEvent;
     }

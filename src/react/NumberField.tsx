@@ -5,10 +5,13 @@ import type {
   NumberFieldRootProps,
   NumberFieldState,
   RenderProp,
+  ScrubAreaProps,
+  ScrubAreaCursorProps,
 } from "../core/types.js";
 import { NumberFieldContext, useNumberFieldContext } from "./context.js";
 import { useNumberFieldState } from "./useNumberFieldState.js";
 import { useNumberField } from "./useNumberField.js";
+import { useScrubArea } from "./useScrubArea.js";
 
 // ── Render prop utility ───────────────────────────────────────────────────────
 
@@ -43,6 +46,7 @@ function stateDataAttrs(state: NumberFieldState): Record<string, string | undefi
     "data-disabled": options.disabled ? "" : undefined,
     "data-readonly": options.readOnly ? "" : undefined,
     "data-required": options.required ? "" : undefined,
+    "data-scrubbing": state.isScrubbing ? "" : undefined,
   };
 }
 
@@ -177,6 +181,93 @@ const HiddenInput = function NumberFieldHiddenInput() {
   return <input {...aria.hiddenInputProps} />;
 };
 
+// ── ScrubArea ─────────────────────────────────────────────────────────────────
+
+const ScrubArea = forwardRef<HTMLSpanElement, ScrubAreaProps>(
+  function NumberFieldScrubArea(
+    { render, children, direction = "horizontal", pixelSensitivity = 4, ...rest },
+    ref
+  ) {
+    const { state } = useNumberFieldContext();
+    const { scrubAreaProps } = useScrubArea(state, { direction, pixelSensitivity });
+
+    const el = (
+      <span
+        ref={ref}
+        {...scrubAreaProps}
+        {...(rest as React.HTMLAttributes<HTMLSpanElement>)}
+      >
+        {children}
+      </span>
+    );
+    return renderWith(el, render, state);
+  }
+);
+
+// ── ScrubAreaCursor ───────────────────────────────────────────────────────────
+//
+// Renders a custom cursor element positioned at the virtual cursor location
+// during pointer lock. Use this to show a drag handle icon while scrubbing.
+// Rendered only when isScrubbing is true.
+
+const ScrubAreaCursor = forwardRef<HTMLSpanElement, ScrubAreaCursorProps>(
+  function NumberFieldScrubAreaCursor({ render, children, style, ...rest }, ref) {
+    const { state } = useNumberFieldContext();
+
+    if (!state.isScrubbing) return null;
+
+    const el = (
+      <span
+        ref={ref}
+        style={{
+          position: "fixed",
+          pointerEvents: "none",
+          zIndex: 9999,
+          ...style,
+        }}
+        {...(rest as React.HTMLAttributes<HTMLSpanElement>)}
+      >
+        {children}
+      </span>
+    );
+    return renderWith(el, render, state);
+  }
+);
+
+// ── Description ───────────────────────────────────────────────────────────────
+
+interface DescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {
+  children?: React.ReactNode;
+}
+
+const Description = forwardRef<HTMLParagraphElement, DescriptionProps>(
+  function NumberFieldDescription({ children, ...rest }, ref) {
+    const { aria } = useNumberFieldContext();
+    return (
+      <p ref={ref} {...aria.descriptionProps} {...rest}>
+        {children}
+      </p>
+    );
+  }
+);
+
+// ── ErrorMessage ──────────────────────────────────────────────────────────────
+
+interface ErrorMessageProps extends React.HTMLAttributes<HTMLParagraphElement> {
+  children?: React.ReactNode;
+}
+
+const ErrorMessage = forwardRef<HTMLParagraphElement, ErrorMessageProps>(
+  function NumberFieldErrorMessage({ children, ...rest }, ref) {
+    const { aria } = useNumberFieldContext();
+    return (
+      <p ref={ref} {...aria.errorMessageProps} {...rest}>
+        {children}
+      </p>
+    );
+  }
+);
+
 // ── Namespace export ──────────────────────────────────────────────────────────
 
 export const NumberField = {
@@ -187,4 +278,8 @@ export const NumberField = {
   Increment,
   Decrement,
   HiddenInput,
+  ScrubArea,
+  ScrubAreaCursor,
+  Description,
+  ErrorMessage,
 };
