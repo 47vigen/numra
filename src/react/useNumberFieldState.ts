@@ -50,6 +50,7 @@ export function useNumberFieldState(
     clampBehavior = "blur",
     prefix,
     suffix,
+    allowOutOfRange = false,
   } = options;
 
   // ── Formatter & parser (re-created only when deps change) ──────────────────
@@ -143,13 +144,17 @@ export function useNumberFieldState(
     }
   }
 
+  // ── isScrubbing state ──────────────────────────────────────────────────────
+  // Using useReducer for a boolean toggle to keep it a stable ref-like pattern
+  const [isScrubbing, setIsScrubbing] = useState(false);
+
   // ── setInputValue ──────────────────────────────────────────────────────────
   const setInputValue = useCallback(
     (val: string) => {
       const result = parser.parse(val);
 
-      // Strict clamping: reject input that goes out of range
-      if (clampBehavior === "strict" && result.value !== null) {
+      // Strict clamping: reject input that goes out of range (skipped when allowOutOfRange)
+      if (clampBehavior === "strict" && !allowOutOfRange && result.value !== null) {
         if (minValue !== undefined && result.value < minValue) return;
         if (maxValue !== undefined && result.value > maxValue) return;
       }
@@ -157,7 +162,7 @@ export function useNumberFieldState(
       setInputValueRaw(val);
       setNumberValue(result.value);
     },
-    [parser, clampBehavior, minValue, maxValue, setNumberValue]
+    [parser, clampBehavior, allowOutOfRange, minValue, maxValue, setNumberValue]
   );
 
   // ── setNumberValue (external) ──────────────────────────────────────────────
@@ -185,7 +190,8 @@ export function useNumberFieldState(
     }
 
     let clamped = numberValue;
-    if (clampBehavior === "blur") {
+    // Clamp on blur, unless allowOutOfRange is true
+    if (clampBehavior === "blur" && !allowOutOfRange) {
       clamped = clamp(numberValue, minValue, maxValue);
     }
 
@@ -196,7 +202,7 @@ export function useNumberFieldState(
     if (clamped !== numberValue) {
       setNumberValue(clamped);
     }
-  }, [numberValue, clampBehavior, minValue, maxValue, formatter, setNumberValue]);
+  }, [numberValue, clampBehavior, allowOutOfRange, minValue, maxValue, formatter, setNumberValue]);
 
   // ── Step computation ───────────────────────────────────────────────────────
   const resolvedLargeStep = largeStep ?? step * 10;
@@ -205,12 +211,12 @@ export function useNumberFieldState(
   const canIncrement =
     !options.disabled &&
     !options.readOnly &&
-    (maxValue === undefined || (numberValue ?? -Infinity) < maxValue);
+    (allowOutOfRange || maxValue === undefined || (numberValue ?? -Infinity) < maxValue);
 
   const canDecrement =
     !options.disabled &&
     !options.readOnly &&
-    (minValue === undefined || (numberValue ?? Infinity) > minValue);
+    (allowOutOfRange || minValue === undefined || (numberValue ?? Infinity) > minValue);
 
   const increment = useCallback(
     (amount?: number) => {
@@ -245,6 +251,8 @@ export function useNumberFieldState(
     numberValue: numberValue ?? null,
     canIncrement,
     canDecrement,
+    isScrubbing,
+    setIsScrubbing,
     setInputValue,
     setNumberValue: setNumericValue,
     commit,

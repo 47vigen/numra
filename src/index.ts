@@ -4,6 +4,8 @@
 export { useNumberFieldState } from "./react/useNumberFieldState.js";
 export { useNumberField } from "./react/useNumberField.js";
 export { useControllableState } from "./react/useControllableState.js";
+export { usePressAndHold } from "./react/usePressAndHold.js";
+export { useScrubArea } from "./react/useScrubArea.js";
 
 // ── Components ────────────────────────────────────────────────────────────────
 export { NumberField } from "./react/NumberField.js";
@@ -37,9 +39,14 @@ export type {
   UseNumberFieldProps,
   NumberFieldAria,
   NumberFieldRootProps,
+  ScrubAreaOptions,
+  ScrubAreaProps,
+  ScrubAreaCursorProps,
   RenderProp,
   StateRenderFn,
 } from "./core/types.js";
+export type { UsePressAndHoldOptions, PressAndHoldProps } from "./react/usePressAndHold.js";
+export type { ScrubAreaReturn } from "./react/useScrubArea.js";
 export type { FormatterOptions, Formatter } from "./core/formatter.js";
 export type { ParserOptions, Parser } from "./core/parser.js";
 export type { LocaleConfig } from "./core/normalizer.js";

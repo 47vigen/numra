@@ -1,0 +1,213 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { NumberField } from "./NumberField.js";
+
+// jsdom doesn't implement Pointer Lock API; define + mock it
+function setupPointerLockMock() {
+  let lockedElement: Element | null = null;
+
+  // jsdom doesn't define these — define them if absent so vi.spyOn can wrap them
+  if (!HTMLElement.prototype.requestPointerLock) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (HTMLElement.prototype as any).requestPointerLock = function() { return Promise.resolve(); };
+  }
+  if (!document.exitPointerLock) {
+    document.exitPointerLock = function() {};
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  vi.spyOn(HTMLElement.prototype as any, "requestPointerLock").mockImplementation(function(this: HTMLElement) {
+    lockedElement = this;
+    Object.defineProperty(document, "pointerLockElement", {
+      get: () => lockedElement,
+      configurable: true,
+    });
+    // Fire pointerlockchange synchronously (mimics browser behavior in tests)
+    document.dispatchEvent(new Event("pointerlockchange"));
+    return Promise.resolve();
+  });
+
+  vi.spyOn(document, "exitPointerLock").mockImplementation(() => {
+    lockedElement = null;
+    document.dispatchEvent(new Event("pointerlockchange"));
+  });
+
+  return {
+    simulateMouseMove(movementX: number, movementY: number) {
+      const event = new MouseEvent("mousemove", { bubbles: true });
+      Object.defineProperty(event, "movementX", { value: movementX });
+      Object.defineProperty(event, "movementY", { value: movementY });
+      document.dispatchEvent(event);
+    },
+    get lockedElement() { return lockedElement; },
+  };
+}
+
+describe("NumberField.ScrubArea", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function renderScrubField(props = {}) {
+    const onChange = vi.fn();
+    const { container } = render(
+      <NumberField.Root defaultValue={50} minValue={0} maxValue={100} onChange={onChange} {...props}>
+        <NumberField.Label>Value</NumberField.Label>
+        <NumberField.ScrubArea data-testid="scrub-area">
+          <span>Drag</span>
+        </NumberField.ScrubArea>
+        <NumberField.Input data-testid="input" />
+      </NumberField.Root>
+    );
+    return { container, onChange };
+  }
+
+  it("renders ScrubArea with role=slider", () => {
+    renderScrubField();
+    const scrubArea = screen.getByTestId("scrub-area");
+    expect(scrubArea).toBeInTheDocument();
+    expect(scrubArea).toHaveAttribute("role", "slider");
+  });
+
+  it("is focusable (tabIndex=0)", () => {
+    renderScrubField();
+    const scrubArea = screen.getByTestId("scrub-area");
+    expect(scrubArea).toHaveAttribute("tabindex", "0");
+  });
+
+  it("has ew-resize cursor by default (horizontal direction)", () => {
+    renderScrubField();
+    const scrubArea = screen.getByTestId("scrub-area");
+    expect(scrubArea).toHaveStyle({ cursor: "ew-resize" });
+  });
+
+  it("has ns-resize cursor for vertical direction", () => {
+    render(
+      <NumberField.Root defaultValue={50}>
+        <NumberField.ScrubArea direction="vertical" data-testid="scrub-area">
+          Drag
+        </NumberField.ScrubArea>
+        <NumberField.Input />
+      </NumberField.Root>
+    );
+    const scrubArea = screen.getByTestId("scrub-area");
+    expect(scrubArea).toHaveStyle({ cursor: "ns-resize" });
+  });
+
+  it("increments value on ArrowRight key", async () => {
+    const onChange = vi.fn();
+    render(
+      <NumberField.Root defaultValue={50} step={1} onChange={onChange}>
+        <NumberField.ScrubArea data-testid="scrub-area">Drag</NumberField.ScrubArea>
+        <NumberField.Input />
+      </NumberField.Root>
+    );
+    const scrubArea = screen.getByTestId("scrub-area");
+    scrubArea.focus();
+    await userEvent.keyboard("{ArrowRight}");
+    expect(onChange).toHaveBeenCalledWith(51);
+  });
+
+  it("decrements value on ArrowLeft key", async () => {
+    const onChange = vi.fn();
+    render(
+      <NumberField.Root defaultValue={50} step={1} onChange={onChange}>
+        <NumberField.ScrubArea data-testid="scrub-area">Drag</NumberField.ScrubArea>
+        <NumberField.Input />
+      </NumberField.Root>
+    );
+    const scrubArea = screen.getByTestId("scrub-area");
+    scrubArea.focus();
+    await userEvent.keyboard("{ArrowLeft}");
+    expect(onChange).toHaveBeenCalledWith(49);
+  });
+
+  it("sets data-scrubbing on scrub area and root during pointer lock", () => {
+    const mock = setupPointerLockMock();
+
+    const { container } = render(
+      <NumberField.Root defaultValue={50}>
+        <NumberField.ScrubArea data-testid="scrub-area">Drag</NumberField.ScrubArea>
+        <NumberField.Input />
+      </NumberField.Root>
+    );
+
+    const scrubArea = screen.getByTestId("scrub-area");
+    const root = container.firstChild as HTMLElement;
+
+    // Before scrubbing
+    expect(scrubArea).not.toHaveAttribute("data-scrubbing");
+    expect(root).not.toHaveAttribute("data-scrubbing");
+
+    // Trigger pointer lock via React's fireEvent (triggers synthetic onPointerDown)
+    fireEvent.pointerDown(scrubArea, { button: 0, bubbles: true });
+
+    // After lock acquired
+    expect(scrubArea).toHaveAttribute("data-scrubbing", "");
+    expect(root).toHaveAttribute("data-scrubbing", "");
+
+    void mock;
+  });
+
+  it("increments on rightward mouse movement (horizontal)", () => {
+    const mock = setupPointerLockMock();
+    const onChange = vi.fn();
+
+    render(
+      <NumberField.Root defaultValue={50} step={1} onChange={onChange}>
+        <NumberField.ScrubArea data-testid="scrub-area" pixelSensitivity={4}>
+          Drag
+        </NumberField.ScrubArea>
+        <NumberField.Input />
+      </NumberField.Root>
+    );
+
+    const scrubArea = screen.getByTestId("scrub-area");
+    fireEvent.pointerDown(scrubArea, { button: 0, bubbles: true });
+
+    // 4 pixels → 1 step
+    mock.simulateMouseMove(4, 0);
+    expect(onChange).toHaveBeenCalledWith(51);
+  });
+
+  it("decrements on leftward mouse movement", () => {
+    const mock = setupPointerLockMock();
+    const onChange = vi.fn();
+
+    render(
+      <NumberField.Root defaultValue={50} step={1} onChange={onChange}>
+        <NumberField.ScrubArea data-testid="scrub-area" pixelSensitivity={4}>
+          Drag
+        </NumberField.ScrubArea>
+        <NumberField.Input />
+      </NumberField.Root>
+    );
+
+    const scrubArea = screen.getByTestId("scrub-area");
+    fireEvent.pointerDown(scrubArea, { button: 0, bubbles: true });
+
+    mock.simulateMouseMove(-4, 0);
+    expect(onChange).toHaveBeenCalledWith(49);
+  });
+
+  it("does not respond to pointer down when disabled", () => {
+    const mock = setupPointerLockMock();
+
+    render(
+      <NumberField.Root defaultValue={50} disabled>
+        <NumberField.ScrubArea data-testid="scrub-area">Drag</NumberField.ScrubArea>
+        <NumberField.Input />
+      </NumberField.Root>
+    );
+
+    const scrubArea = screen.getByTestId("scrub-area");
+    fireEvent.pointerDown(scrubArea, { button: 0, bubbles: true });
+
+    expect(mock.lockedElement).toBeNull();
+  });
+});
