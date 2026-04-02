@@ -75,7 +75,7 @@ function splitProps(props: Record<string, unknown>) {
 
 const Root = forwardRef<HTMLDivElement, NumberFieldRootProps>(
   function NumberFieldRoot({ children, onValueChange, onValueCommitted, ...allProps }, ref) {
-    const inputRef = useRef<HTMLInputElement | null>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
     const { fieldProps, divProps } = splitProps(allProps as Record<string, unknown>);
     const props = fieldProps as Omit<NumberFieldRootProps, "children" | "onValueChange" | "onValueCommitted">;
 
@@ -174,7 +174,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   function NumberFieldInput({ render, ...rest }, _ref) {
     const { aria, state, inputRef } = useNumberFieldContext();
     const el = (
-      <input ref={inputRef} {...aria.inputProps} {...rest} />
+      <input ref={inputRef as React.RefObject<HTMLInputElement>} {...aria.inputProps} {...rest} />
     );
     return renderWith(el, render, state);
   }
