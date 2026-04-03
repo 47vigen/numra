@@ -1,4 +1,4 @@
-# Phase 2 Worklog — numra
+# Phase 2 Worklog — raqam
 
 **Status: ✅ COMPLETE**
 **Branch**: `claude/phase-2-implementation-2KsSb`
@@ -38,6 +38,7 @@ New compound components: `NumberField.ScrubArea` and `NumberField.ScrubAreaCurso
 **Solution**: `stableMouseMove` and `stablePointerLockChange` are stored in `useRef` (not created by `useCallback`). The `useEffect` registers them once on mount with `[]` deps — stable for lifetime of component.
 
 **Flow**:
+
 1. `onPointerDown` → `el.requestPointerLock()`
 2. `pointerlockchange` fires → `document.addEventListener("mousemove", stableMouseMove)`
 3. `mousemove` accumulates `movementX`/`movementY` into buffer; fires step when buffer ≥ `pixelSensitivity`
@@ -60,6 +61,7 @@ New hook, zero React state (pure refs → zero re-renders from timing logic).
 **Acceleration schedule** (default): immediate → 400ms → 200ms → 100ms → 50ms (floor)
 
 Algorithm:
+
 1. `onPointerDown`: call `callback()` immediately, schedule `setTimeout(delay)`
 2. After delay: enter `scheduleRepeat(interval)` → recursive `setTimeout` halving period each call
 3. `onPointerUp` / `onPointerLeave`: `clearTimeout` all pending timers, set `isHeldRef = false`
@@ -117,11 +119,13 @@ style: localeInfo.isRTL ? {
 New prop: `allowOutOfRange?: boolean` (default: `false`).
 
 Changes to `useNumberFieldState.ts`:
+
 - `setInputValue`: skips strict clamping check when `allowOutOfRange`
 - `commit`: skips blur clamping when `allowOutOfRange`
 - `canIncrement`/`canDecrement`: always `true` (ignoring bounds) when `allowOutOfRange` and not disabled/readOnly
 
 Changes to `useNumberField.ts`:
+
 - Computes `isOutOfRange = numberValue !== null && (value < min || value > max)`
 - Sets `aria-invalid={true}` and `data-invalid=""` when out of range
 
@@ -130,22 +134,27 @@ Changes to `useNumberField.ts`:
 ### 8. New Types — `src/core/types.ts`
 
 Added to `UseNumberFieldStateOptions`:
+
 - `allowOutOfRange?: boolean`
 
 Added to `UseNumberFieldProps`:
+
 - `copyBehavior?: "formatted" | "raw" | "number"`
 - `stepHoldDelay?: number`
 - `stepHoldInterval?: number`
 
 Added to `NumberFieldState`:
+
 - `isScrubbing: boolean`
 - `setIsScrubbing: (val: boolean) => void`
 
 Added to `NumberFieldAria`:
+
 - `descriptionProps: React.HTMLAttributes<HTMLElement>`
 - `errorMessageProps: React.HTMLAttributes<HTMLElement>`
 
 New interfaces:
+
 - `ScrubAreaOptions` — direction, pixelSensitivity
 - `ScrubAreaProps extends ScrubAreaOptions, React.HTMLAttributes<HTMLSpanElement>`
 - `ScrubAreaCursorProps extends React.HTMLAttributes<HTMLSpanElement>`
@@ -157,6 +166,7 @@ Updated `NumberFieldRootProps.onValueChange` reasons: added `"scrub"`.
 ### 9. New Compound Components — `NumberField.tsx`
 
 Added:
+
 - `NumberField.ScrubArea` — wraps `useScrubArea`, renders `<span role="slider">`
 - `NumberField.ScrubAreaCursor` — renders custom cursor during pointer lock (hidden when not scrubbing)
 - `NumberField.Description` — renders `<p>` with `descriptionProps` id for ARIA
@@ -182,41 +192,41 @@ Root `stateDataAttrs()` now also emits `data-scrubbing=""` when `state.isScrubbi
 
 ## Files Modified
 
-| File | Change |
-|------|--------|
-| `src/core/types.ts` | +allowOutOfRange, +copyBehavior, +stepHoldDelay/Interval, +isScrubbing, +descriptionProps/errorMessageProps, +ScrubAreaOptions/Props, +scrub reason |
-| `src/react/useNumberFieldState.ts` | +allowOutOfRange logic, +isScrubbing state |
-| `src/react/useNumberField.ts` | Wheel fix (non-passive), paste handler, copy/cut handler, press-and-hold integration, RTL unicodeBidi, aria-invalid/data-invalid |
-| `src/react/NumberField.tsx` | +ScrubArea, +ScrubAreaCursor, +Description, +ErrorMessage, +data-scrubbing on Root |
-| `src/index.ts` | +usePressAndHold, +useScrubArea exports, +new types |
-| `src/test-setup.ts` | +PointerEvent polyfill for jsdom |
-| `package.json` | +storybook scripts, +storybook devDependencies |
+| File                               | Change                                                                                                                                              |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core/types.ts`                | +allowOutOfRange, +copyBehavior, +stepHoldDelay/Interval, +isScrubbing, +descriptionProps/errorMessageProps, +ScrubAreaOptions/Props, +scrub reason |
+| `src/react/useNumberFieldState.ts` | +allowOutOfRange logic, +isScrubbing state                                                                                                          |
+| `src/react/useNumberField.ts`      | Wheel fix (non-passive), paste handler, copy/cut handler, press-and-hold integration, RTL unicodeBidi, aria-invalid/data-invalid                    |
+| `src/react/NumberField.tsx`        | +ScrubArea, +ScrubAreaCursor, +Description, +ErrorMessage, +data-scrubbing on Root                                                                  |
+| `src/index.ts`                     | +usePressAndHold, +useScrubArea exports, +new types                                                                                                 |
+| `src/test-setup.ts`                | +PointerEvent polyfill for jsdom                                                                                                                    |
+| `package.json`                     | +storybook scripts, +storybook devDependencies                                                                                                      |
 
 ## New Files
 
-| File | Description |
-|------|-------------|
-| `src/react/usePressAndHold.ts` | Press-and-hold acceleration hook |
-| `src/react/useScrubArea.ts` | Pointer Lock API scrub hook |
-| `src/react/usePressAndHold.test.ts` | 8 tests |
-| `src/react/ScrubArea.test.tsx` | 10 tests |
-| `.storybook/main.ts` | Storybook v10 config |
-| `.storybook/preview.ts` | Storybook preview config |
-| `src/stories/BasicUsage.stories.tsx` | |
-| `src/stories/Locales.stories.tsx` | |
-| `src/stories/Currency.stories.tsx` | |
-| `src/stories/ScrubArea.stories.tsx` | |
-| `src/stories/Accessibility.stories.tsx` | |
+| File                                    | Description                      |
+| --------------------------------------- | -------------------------------- |
+| `src/react/usePressAndHold.ts`          | Press-and-hold acceleration hook |
+| `src/react/useScrubArea.ts`             | Pointer Lock API scrub hook      |
+| `src/react/usePressAndHold.test.ts`     | 8 tests                          |
+| `src/react/ScrubArea.test.tsx`          | 10 tests                         |
+| `.storybook/main.ts`                    | Storybook v10 config             |
+| `.storybook/preview.ts`                 | Storybook preview config         |
+| `src/stories/BasicUsage.stories.tsx`    |                                  |
+| `src/stories/Locales.stories.tsx`       |                                  |
+| `src/stories/Currency.stories.tsx`      |                                  |
+| `src/stories/ScrubArea.stories.tsx`     |                                  |
+| `src/stories/Accessibility.stories.tsx` |                                  |
 
 ---
 
 ## Bundle Size Impact
 
-| Entry | Phase 1 | Phase 2 | Change |
-|-------|---------|---------|--------|
-| `numra/core` | 1.8 KB | 1.8 KB | 0 |
-| `numra` (full) | 4.5 KB | 6.3 KB | +1.8 KB |
-| `numra/react` | 4.3 KB | 6.1 KB | +1.8 KB |
+| Entry          | Phase 1 | Phase 2 | Change  |
+| -------------- | ------- | ------- | ------- |
+| `raqam/core`   | 1.8 KB  | 1.8 KB  | 0       |
+| `raqam` (full) | 4.5 KB  | 6.3 KB  | +1.8 KB |
+| `raqam/react`  | 4.3 KB  | 6.1 KB  | +1.8 KB |
 
 The 1.8 KB addition covers: ScrubArea + Pointer Lock (~600B), usePressAndHold (~200B), paste/copy handlers (~400B), new types overhead (~600B). Slightly over the 5 KB target; acceptable given the rich P2 features added.
 
@@ -225,19 +235,23 @@ The 1.8 KB addition covers: ScrubArea + Pointer Lock (~600B), usePressAndHold (~
 ## Key Technical Decisions & Bugs Fixed
 
 ### Bug: Stale mousemove listener in ScrubArea
+
 **Problem**: `handlePointerLockChange` called `setIsScrubbingLocal(true)` which scheduled a React re-render. The `useEffect` cleanup removed the mousemove listener before `simulateMouseMove` tests ran.
 
 **Fix**: Store all event handlers in `useRef` objects (`stableMouseMove`, `stablePointerLockChange`). Register `pointerlockchange` once on mount with `[]` deps. The stable refs always delegate to the latest state/props values via `stateRef.current`, `directionRef.current`, etc.
 
 ### Bug: Invalid regex character class in paste handler
+
 **Problem**: `[^0-9.--]` — the minus sign from `localeInfo.minusSign` was placed as `-` in the character class, creating a range from `.` (U+002E) to `-` (U+002D), which is out-of-order.
 
 **Fix**: Updated `escapeRegex()` to also escape hyphen: `/[.*+?^${}()|[\]\\\-]/g` → outputs `\-` for minus characters.
 
 ### Decision: `isScrubbing` on `NumberFieldState` (not context)
+
 `isScrubbing` was added to `NumberFieldState` rather than the React context. This makes it accessible from the state layer, testable with `useNumberFieldState` in isolation, and flows naturally through context to all sub-components including Root for `data-scrubbing` propagation.
 
 ### Decision: Stable refs for ScrubArea handlers
+
 Pointer Lock event handlers (`pointerlockchange`, `mousemove`) are registered on `document`, outside React's reconciliation. Using stable `useRef` wrappers avoids the fundamental problem of re-registering global listeners on every React re-render.
 
 ---

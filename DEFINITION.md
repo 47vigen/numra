@@ -1,6 +1,6 @@
 # The definitive React number input: design specification
 
-**No existing React number input package combines live formatting, true headless composability, full i18n digit support, and gold-standard accessibility into one solution.** This document specifies exactly how to build one. After analyzing every major competitor — Base UI, React Aria, Mantine, Chakra, rc-input-number, and react-number-format — we identified a critical gap: libraries excel at one or two of these dimensions but fail at the rest. React Aria has the best accessibility and i18n parsing (30+ locales, Arabic/Persian digit input) but only formats on blur. Mantine wraps react-number-format for live formatting but is locked to its design system. Base UI is truly headless with an innovative ScrubArea but lacks live formatting and i18n digit parsing. **This package — tentatively named `numra` — unifies all four pillars into a single, tree-shakeable, zero-dependency library shipping both a Hook API and a Headless Component API.**
+**No existing React number input package combines live formatting, true headless composability, full i18n digit support, and gold-standard accessibility into one solution.** This document specifies exactly how to build one. After analyzing every major competitor — Base UI, React Aria, Mantine, Chakra, rc-input-number, and react-number-format — we identified a critical gap: libraries excel at one or two of these dimensions but fail at the rest. React Aria has the best accessibility and i18n parsing (30+ locales, Arabic/Persian digit input) but only formats on blur. Mantine wraps react-number-format for live formatting but is locked to its design system. Base UI is truly headless with an innovative ScrubArea but lacks live formatting and i18n digit parsing. **This package — tentatively named `raqam` — unifies all four pillars into a single, tree-shakeable, zero-dependency library shipping both a Hook API and a Headless Component API.**
 
 ---
 
@@ -139,7 +139,7 @@ This is the same approach used by react-number-format's caret engine and RIFM's 
 **Architecture**:
 
 ```
-numra
+raqam
 ├── core (formatting, parsing, cursor math) — 0 deps, ~2 KB
 ├── react (hooks + components) — peer dep: react — ~3 KB
 ├── locales/fa (Persian digit normalization + separators)
@@ -148,13 +148,13 @@ numra
 └── locales/hi (Hindi/Devanagari + lakh grouping)
 ```
 
-The core always handles Latin digits and `Intl.NumberFormat` output. Locale plugins add input normalization for non-Latin digits. Importing `numra/locales/fa` registers Persian digit ranges — if not imported, the code is tree-shaken away.
+The core always handles Latin digits and `Intl.NumberFormat` output. Locale plugins add input normalization for non-Latin digits. Importing `raqam/locales/fa` registers Persian digit ranges — if not imported, the code is tree-shaken away.
 
 ### ADR-006: Single package with subpath exports
 
 **Decision**: Ship as one npm package with subpath exports, not a monorepo of separate packages.
 
-**Rationale**: The codebase is tightly coupled (formatting logic feeds into hooks which feed into components). Separate packages would create version synchronization headaches. Subpath exports provide the same tree-shaking benefits: `import { useNumberField } from 'numra'` for the hook, `import { NumberField } from 'numra/components'` for headless components, `import 'numra/locales/fa'` for Persian support.
+**Rationale**: The codebase is tightly coupled (formatting logic feeds into hooks which feed into components). Separate packages would create version synchronization headaches. Subpath exports provide the same tree-shaking benefits: `import { useNumberField } from 'raqam'` for the hook, `import { NumberField } from 'raqam/components'` for headless components, `import 'raqam/locales/fa'` for Persian support.
 
 ### ADR-007: render prop pattern for element replacement
 
@@ -169,7 +169,7 @@ The core always handles Latin digits and `Intl.NumberFormat` output. Locale plug
 ### Directory layout
 
 ```
-numra/
+raqam/
 ├── src/
 │   ├── core/
 │   │   ├── formatter.ts        # Intl.NumberFormat wrapper, formatToParts
@@ -462,7 +462,7 @@ export default defineConfig([
 
 ```json
 {
-  "name": "numra",
+  "name": "raqam",
   "version": "1.0.0",
   "type": "module",
   "sideEffects": false,
@@ -504,8 +504,8 @@ export default defineConfig([
 
 | Entry point                  | Target (min+gzip) |
 | ---------------------------- | ----------------- |
-| `numra/core`                 | < 2 KB            |
-| `numra` (hooks + components) | < 5 KB            |
+| `raqam/core`                 | < 2 KB            |
+| `raqam` (hooks + components) | < 5 KB            |
 | Each locale plugin           | < 0.3 KB          |
 | Full package (all locales)   | < 7 KB            |
 
@@ -651,11 +651,11 @@ Build the core engine with zero React dependency:
 
 ### The unique value proposition in one sentence
 
-**Numra is the only React number input that formats live while you type, accepts digits from any writing system, works with any design system, and meets WAI-ARIA accessibility standards — all in under 5 KB.**
+**Raqam is the only React number input that formats live while you type, accepts digits from any writing system, works with any design system, and meets WAI-ARIA accessibility standards — all in under 5 KB.**
 
 Every competitor forces a trade-off. React Aria makes you choose between accessibility and live formatting. Mantine makes you choose between live formatting and design system independence. react-number-format makes you choose between formatting and spinbutton behavior. Base UI makes you choose between headless composability and i18n input support.
 
-Numra eliminates all four trade-offs by layering a framework-agnostic formatting/parsing/cursor core beneath React-specific state and behavior hooks, exposed through both a Hook API (for maximum control) and a Headless Component API (for rapid integration). The locale plugin system means Persian support adds **< 300 bytes** only when imported, keeping the default bundle lean for English-only consumers while making the package genuinely usable for the **500+ million** Persian and Arabic speakers who deserve number inputs that accept their native digits.
+Raqam eliminates all four trade-offs by layering a framework-agnostic formatting/parsing/cursor core beneath React-specific state and behavior hooks, exposed through both a Hook API (for maximum control) and a Headless Component API (for rapid integration). The locale plugin system means Persian support adds **< 300 bytes** only when imported, keeping the default bundle lean for English-only consumers while making the package genuinely usable for the **500+ million** Persian and Arabic speakers who deserve number inputs that accept their native digits.
 
 The live formatting engine — built on the same cursor-boundary algorithm that makes react-number-format the most-downloaded formatter in the ecosystem — is the technical moat. It's the feature users notice immediately, the feature competitors have avoided because it's hard, and the feature that makes financial, e-commerce, and data-entry applications feel polished rather than unfinished.
 
