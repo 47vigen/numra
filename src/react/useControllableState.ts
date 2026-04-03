@@ -29,7 +29,7 @@ export function useControllableState<T>({
   ) {
     if (wasControlled.current !== isControlled) {
       console.warn(
-        `[numra] Component is changing from ${
+        `[raqam] Component is changing from ${
           wasControlled.current ? "controlled" : "uncontrolled"
         } to ${isControlled ? "controlled" : "uncontrolled"}. Decide between using a controlled or uncontrolled component and don't switch.`
       );

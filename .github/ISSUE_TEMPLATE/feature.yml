@@ -12,7 +12,7 @@ body:
     attributes:
       label: Problem / Motivation
       description: What problem does this solve? What use case is not covered today?
-      placeholder: "When I use numra for a financial app, I can't do X because..."
+      placeholder: "When I use raqam for a financial app, I can't do X because..."
     validations:
       required: true
 

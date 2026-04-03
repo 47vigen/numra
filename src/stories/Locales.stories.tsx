@@ -9,7 +9,7 @@ import "../locales/hi.js";
 import "../locales/bn.js";
 
 const meta = {
-  title: "numra/Locales & i18n",
+  title: "raqam/Locales & i18n",
   component: NumberField.Root,
   tags: ["autodocs"],
 } satisfies Meta<typeof NumberField.Root>;

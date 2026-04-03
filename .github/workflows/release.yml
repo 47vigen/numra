@@ -40,8 +40,8 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: pnpm changeset publish
-          title: "chore: release numra"
-          commit: "chore: release numra"
+          title: "chore: release raqam"
+          commit: "chore: release raqam"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

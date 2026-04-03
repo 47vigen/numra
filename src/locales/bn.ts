@@ -4,7 +4,7 @@
  * Registers Bengali digit block (U+09E6–U+09EF).
  *
  * Usage:
- *   import 'numra/locales/bn'
+ *   import 'raqam/locales/bn'
  */
 import { registerLocale } from "../core/normalizer.js";
 

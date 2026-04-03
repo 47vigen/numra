@@ -4,7 +4,7 @@
  * Registers Devanagari digit block (U+0966–U+096F).
  *
  * Usage:
- *   import 'numra/locales/hi'
+ *   import 'raqam/locales/hi'
  */
 import { registerLocale } from "../core/normalizer.js";
 

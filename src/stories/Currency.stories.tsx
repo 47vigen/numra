@@ -3,7 +3,7 @@ import React from "react";
 import { NumberField } from "../react/NumberField.js";
 
 const meta = {
-  title: "numra/Currency & Formatting",
+  title: "raqam/Currency & Formatting",
   component: NumberField.Root,
   tags: ["autodocs"],
 } satisfies Meta<typeof NumberField.Root>;

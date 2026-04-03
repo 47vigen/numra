@@ -1,6 +1,6 @@
 ---
 title: RTL Support
-description: How numra renders right-to-left number inputs for Arabic, Persian, Hebrew, and Urdu.
+description: How raqam renders right-to-left number inputs for Arabic, Persian, Hebrew, and Urdu.
 ---
 
 import { Aside } from "@astrojs/starlight/components";
@@ -9,11 +9,11 @@ RTL (right-to-left) number inputs have a subtle rendering challenge: the
 **numbers themselves are always left-to-right** (digits flow 0→9 regardless of
 script), but the **surrounding text and layout** flows right-to-left.
 
-numra handles this automatically for all RTL locales.
+raqam handles this automatically for all RTL locales.
 
 ## Auto-detection
 
-numra detects RTL locales via `Intl.NumberFormat.resolvedOptions().locale`:
+raqam detects RTL locales via `Intl.NumberFormat.resolvedOptions().locale`:
 
 ```ts
 // Detected as RTL:
@@ -28,7 +28,7 @@ correct styles are applied automatically.
 
 ## What gets applied
 
-For RTL locales, numra applies two CSS properties to the input element:
+For RTL locales, raqam applies two CSS properties to the input element:
 
 ```css
 direction: ltr;       /* numbers flow left-to-right */
@@ -56,8 +56,8 @@ input[data-rtl] {
 ## Persian example
 
 ```tsx
-import "numra/locales/fa";
-import { NumberField } from "numra";
+import "raqam/locales/fa";
+import { NumberField } from "raqam";
 
 <NumberField.Root
   locale="fa-IR"
@@ -79,8 +79,8 @@ normalizing them to the same value internally.
 ## Arabic example
 
 ```tsx
-import "numra/locales/ar";
-import { NumberField } from "numra";
+import "raqam/locales/ar";
+import { NumberField } from "raqam";
 
 <NumberField.Root
   locale="ar-EG"
@@ -100,7 +100,7 @@ container with `dir="rtl"`:
 
 ```html
 <div dir="rtl">
-  <!-- numra handles the input direction internally -->
+  <!-- raqam handles the input direction internally -->
   <NumberField.Root locale="fa-IR" ...>
     ...
   </NumberField.Root>
@@ -108,7 +108,7 @@ container with `dir="rtl"`:
 ```
 
 <Aside type="caution">
-  Don't set `dir="rtl"` on the `<input>` element itself — numra manages
+  Don't set `dir="rtl"` on the `<input>` element itself — raqam manages
   `direction: ltr` on the input to keep digit order correct.
 </Aside>
 

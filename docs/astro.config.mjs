@@ -6,7 +6,7 @@ export default defineConfig({
   base: "/numra",
   integrations: [
     starlight({
-      title: "numra",
+      title: "raqam",
       description:
         "The definitive React number input: live formatting, full i18n, headless, accessible",
       social: [

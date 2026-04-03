@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-description: Install numra and build your first number field in under five minutes.
+description: Install raqam and build your first number field in under five minutes.
 ---
 
 import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
@@ -10,17 +10,17 @@ import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 <Tabs>
   <TabItem label="npm">
     ```sh
-    npm install numra
+    npm install raqam
     ```
   </TabItem>
   <TabItem label="pnpm">
     ```sh
-    pnpm add numra
+    pnpm add raqam
     ```
   </TabItem>
   <TabItem label="yarn">
     ```sh
-    yarn add numra
+    yarn add raqam
     ```
   </TabItem>
 </Tabs>
@@ -32,7 +32,7 @@ import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 ### Component API (recommended)
 
 ```tsx
-import { NumberField } from "numra";
+import { NumberField } from "raqam";
 
 export function QuantityInput() {
   return (
@@ -52,7 +52,7 @@ export function QuantityInput() {
 
 ```tsx
 import { useRef } from "react";
-import { useNumberFieldState, useNumberField } from "numra";
+import { useNumberFieldState, useNumberField } from "raqam";
 
 export function QuantityInput() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -81,7 +81,7 @@ export function QuantityInput() {
 
 ## Controlled vs uncontrolled
 
-Like all React form controls, numra supports both patterns.
+Like all React form controls, raqam supports both patterns.
 
 ### Uncontrolled (defaultValue)
 
@@ -169,7 +169,7 @@ For library-managed forms see [react-hook-form](/recipes/react-hook-form) and
 
 ## TypeScript
 
-numra is written in TypeScript. Key types:
+raqam is written in TypeScript. Key types:
 
 ```ts
 import type {
@@ -178,10 +178,10 @@ import type {
   UseNumberFieldProps,
   NumberFieldAria,
   ChangeReason,
-} from "numra";
+} from "raqam";
 ```
 
 <Aside type="tip">
-  Use `numra/core` for server-side formatting (RSC, edge functions). It has zero
+  Use `raqam/core` for server-side formatting (RSC, edge functions). It has zero
   React dependency. See [Next.js guide](/guides/nextjs).
 </Aside>

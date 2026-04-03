@@ -1,20 +1,20 @@
 ---
 title: Next.js App Router
-description: Using numra with Next.js App Router — client components, Server Components, and edge functions.
+description: Using raqam with Next.js App Router — client components, Server Components, and edge functions.
 ---
 
 import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
 ## Client components
 
-numra is a client-side library (it uses React hooks, DOM APIs, and browser
+raqam is a client-side library (it uses React hooks, DOM APIs, and browser
 `Intl`). All components and hooks must run in a Client Component.
 
 ```tsx
 // components/price-input.tsx
 "use client";
 
-import { NumberField } from "numra";
+import { NumberField } from "raqam";
 
 export function PriceInput({ value, onChange }: {
   value: number | null;
@@ -39,20 +39,20 @@ export function PriceInput({ value, onChange }: {
 ```
 
 <Aside>
-  The `numra` package ships with `"use client";` prepended to its bundles.
+  The `raqam` package ships with `"use client";` prepended to its bundles.
   You can import it directly in Client Components without any extra wrapper.
 </Aside>
 
 ## Server Components — formatting only
 
 For SSR formatting (price display, report generation, email templates), import
-from `numra/server` — it has **zero React dependency** and runs in any
+from `raqam/server` — it has **zero React dependency** and runs in any
 server context including Edge Runtime:
 
 ```ts
 // app/products/page.tsx  (Server Component)
-import { createFormatter } from "numra/server";
-import { presets } from "numra/server";
+import { createFormatter } from "raqam/server";
+import { presets } from "raqam/server";
 
 const fmt = createFormatter({
   locale: "en-US",
@@ -66,7 +66,7 @@ export default function ProductsPage() {
 }
 ```
 
-`numra/server` is an alias for `numra/core`. It exports `createFormatter`,
+`raqam/server` is an alias for `raqam/core`. It exports `createFormatter`,
 `createParser`, `normalizeDigits`, `registerLocale`, and `presets`.
 
 ## Pattern: Server Component + Client Input
@@ -77,7 +77,7 @@ field.
 
 ```tsx
 // app/checkout/page.tsx  (Server Component)
-import { createFormatter } from "numra/server";
+import { createFormatter } from "raqam/server";
 import { CheckoutForm } from "./checkout-form";
 
 export default async function CheckoutPage() {
@@ -102,7 +102,7 @@ export default async function CheckoutPage() {
 "use client";
 
 import { useState } from "react";
-import { NumberField } from "numra";
+import { NumberField } from "raqam";
 
 export function CheckoutForm({
   productName,
@@ -141,8 +141,8 @@ for side-effect-only modules):
 
 ```tsx
 // app/layout.tsx
-import "numra/locales/fa";
-import "numra/locales/ar";
+import "raqam/locales/fa";
+import "raqam/locales/ar";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return <html><body>{children}</body></html>;
@@ -156,13 +156,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 ## Edge Runtime
 
-`numra/server` (`numra/core`) is Edge Runtime compatible — it uses only
+`raqam/server` (`raqam/core`) is Edge Runtime compatible — it uses only
 `Intl.NumberFormat` which is available in all modern edge environments
 (Vercel Edge, Cloudflare Workers, Deno Deploy).
 
 ```ts
 // edge-function.ts
-import { createFormatter } from "numra/server";
+import { createFormatter } from "raqam/server";
 
 export const runtime = "edge";
 

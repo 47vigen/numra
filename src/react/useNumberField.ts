@@ -51,7 +51,7 @@ export function useNumberField(
   const { step = 1, largeStep = step * 10, smallStep = step * 0.1 } = state.options;
 
   const autoId = useId();
-  const inputId = props.id ?? `numra-${autoId}`;
+  const inputId = props.id ?? `raqam-${autoId}`;
   const labelId = `${inputId}-label`;
   const descriptionId = `${inputId}-description`;
   const errorId = `${inputId}-error`;

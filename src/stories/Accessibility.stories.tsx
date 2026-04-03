@@ -3,7 +3,7 @@ import React from "react";
 import { NumberField } from "../react/NumberField.js";
 
 const meta = {
-  title: "numra/Accessibility",
+  title: "raqam/Accessibility",
   component: NumberField.Root,
   tags: ["autodocs"],
 } satisfies Meta<typeof NumberField.Root>;

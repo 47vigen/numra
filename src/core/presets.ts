@@ -3,7 +3,7 @@
  * number input patterns. Use these as the `formatOptions` prop value.
  *
  * @example
- * import { presets } from 'numra'
+ * import { presets } from 'raqam'
  * <NumberField.Root formatOptions={presets.currency('USD')} />
  * <NumberField.Root formatOptions={presets.percent} />
  * <NumberField.Root formatOptions={presets.compact} />
@@ -18,7 +18,7 @@ export const presets = {
 
   /**
    * Accounting currency — negatives shown as `(1,234.56)` instead of `-$1,234.56`.
-   * Requires the accounting format parser fix (built-in to numra).
+   * Requires the accounting format parser fix (built-in to raqam).
    */
   accounting: (code: string): Intl.NumberFormatOptions => ({
     style: "currency",

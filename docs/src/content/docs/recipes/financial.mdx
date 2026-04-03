@@ -9,8 +9,8 @@ Show negative balances as `(1,234.56)` instead of `-$1,234.56` — standard in
 double-entry bookkeeping:
 
 ```tsx
-import { presets } from "numra";
-import { NumberField } from "numra";
+import { presets } from "raqam";
+import { NumberField } from "raqam";
 
 <NumberField.Root
   locale="en-US"
@@ -25,7 +25,7 @@ import { NumberField } from "numra";
 // Displays: 1,234.56  ← positive shown normally
 ```
 
-numra automatically parses `(1,234.56)` back to `-1234.56` when the user
+raqam automatically parses `(1,234.56)` back to `-1234.56` when the user
 pastes accounting-formatted values.
 
 ## Fixed decimal scale
@@ -52,7 +52,7 @@ bypassing JavaScript floating-point limitations:
 
 ```tsx
 import { useState } from "react";
-import { NumberField } from "numra";
+import { NumberField } from "raqam";
 
 function CryptoInput() {
   const [raw, setRaw] = useState<string | null>(null);
@@ -86,7 +86,7 @@ Show the converted value in real time using `NumberField.Formatted` + a read-onl
 
 ```tsx
 import { useState } from "react";
-import { NumberField, useNumberFieldFormat } from "numra";
+import { NumberField, useNumberFieldFormat } from "raqam";
 
 const USD_TO_EUR = 0.92;
 

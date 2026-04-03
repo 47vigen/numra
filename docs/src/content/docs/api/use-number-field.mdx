@@ -10,9 +10,9 @@ elements.
 ## Import
 
 ```ts
-import { useNumberField } from "numra";
+import { useNumberField } from "raqam";
 // or
-import { useNumberField } from "numra/react";
+import { useNumberField } from "raqam/react";
 ```
 
 ## Signature
@@ -87,7 +87,7 @@ passive-by-default `onWheel`) so `preventDefault()` can stop page scroll.
 
 ```tsx
 import { useRef } from "react";
-import { useNumberFieldState, useNumberField } from "numra";
+import { useNumberFieldState, useNumberField } from "raqam";
 
 function SpinnerInput({ label }: { label: string }) {
   const ref = useRef<HTMLInputElement>(null);

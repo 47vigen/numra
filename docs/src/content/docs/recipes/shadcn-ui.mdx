@@ -1,39 +1,39 @@
 ---
 title: shadcn/ui
-description: Wrapping numra with shadcn/ui primitives for a polished, design-system-consistent number input.
+description: Wrapping raqam with shadcn/ui primitives for a polished, design-system-consistent number input.
 ---
 
 import { Aside } from "@astrojs/starlight/components";
 
 [shadcn/ui](https://ui.shadcn.com) provides styled, accessible components built
-on Radix UI. Since numra is headless, it integrates cleanly — just use numra's
+on Radix UI. Since raqam is headless, it integrates cleanly — just use raqam's
 hooks/components and apply shadcn's class names.
 
-## NumraInput component
+## RaqamInput component
 
-Create a reusable `NumraInput` component that follows the shadcn design language:
+Create a reusable `RaqamInput` component that follows the shadcn design language:
 
 ```tsx
-// components/numra-input.tsx
+// components/raqam-input.tsx
 "use client";
 
 import * as React from "react";
-import { NumberField } from "numra";
+import { NumberField } from "raqam";
 import { cn } from "@/lib/utils";
-import type { UseNumberFieldStateOptions } from "numra";
+import type { UseNumberFieldStateOptions } from "raqam";
 
-interface NumraInputProps extends UseNumberFieldStateOptions {
+interface RaqamInputProps extends UseNumberFieldStateOptions {
   label?: string;
   description?: string;
   className?: string;
 }
 
-export function NumraInput({
+export function RaqamInput({
   label,
   description,
   className,
   ...props
-}: NumraInputProps) {
+}: RaqamInputProps) {
   return (
     <NumberField.Root
       {...props}
@@ -72,10 +72,10 @@ export function NumraInput({
 ## Usage
 
 ```tsx
-import { NumraInput } from "@/components/numra-input";
+import { RaqamInput } from "@/components/raqam-input";
 
 // Basic
-<NumraInput
+<RaqamInput
   locale="en-US"
   label="Quantity"
   defaultValue={1}
@@ -84,7 +84,7 @@ import { NumraInput } from "@/components/numra-input";
 />
 
 // Currency
-<NumraInput
+<RaqamInput
   locale="en-US"
   label="Price"
   description="Enter the listing price in USD"
@@ -99,7 +99,7 @@ import { NumraInput } from "@/components/numra-input";
 
 ```tsx
 import { Badge } from "@/components/ui/badge";
-import { useNumberFieldFormat } from "numra";
+import { useNumberFieldFormat } from "raqam";
 
 function PriceBadge({ amount }: { amount: number }) {
   const formatted = useNumberFieldFormat(amount, {
@@ -120,7 +120,7 @@ function PriceBadge({ amount }: { amount: number }) {
 ```tsx
 import { useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { NumberField } from "numra";
+import { NumberField } from "raqam";
 import { Controller } from "react-hook-form";
 
 export function ProductForm() {

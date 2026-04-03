@@ -5,9 +5,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        numra supports locale-aware formatting via `Intl.NumberFormat` for all CLDR locales.
+        raqam supports locale-aware formatting via `Intl.NumberFormat` for all CLDR locales.
         This template is for requesting a **digit-normalization plugin** for a non-Latin script
-        (similar to the existing `numra/locales/fa`, `numra/locales/ar`, etc.).
+        (similar to the existing `raqam/locales/fa`, `raqam/locales/ar`, etc.).
 
   - type: input
     id: bcp47

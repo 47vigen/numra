@@ -1,4 +1,4 @@
-# numra Changelog
+# raqam Changelog
 
 ## 0.2.0
 
@@ -6,7 +6,7 @@
 
 - d1c28e3: Phase 5 — Polish and release:
 
-  - **Bundle optimization**: `numra/core` reduced to < 2 KB gzipped; removed `isNonLatinDigit` from core exports (still available via direct `numra/core/normalizer` import in tests); split tsup config so `numra/core` (the server-safe entry) does not receive a `"use client"` banner
+  - **Bundle optimization**: `raqam/core` reduced to < 2 KB gzipped; removed `isNonLatinDigit` from core exports (still available via direct `raqam/core/normalizer` import in tests); split tsup config so `raqam/core` (the server-safe entry) does not receive a `"use client"` banner
   - **`"use client"` directive**: Fixed — now correctly prepended to `dist/index.js`, `dist/index.cjs`, `dist/react.js`, `dist/react.cjs` via post-build step (esbuild 0.25+ strips source-level directives from bundled output)
   - **Storybook**: Added `preview.ts` with `layout: "centered"`, table-of-contents, and control matchers; new `HookAPI.stories.tsx` demonstrating `useNumberFieldState` + `useNumberField` hook pair directly
   - **react-hook-form integration**: Upgraded `Validation.stories.tsx` to use real `react-hook-form` `Controller` pattern (was previously simulated); added `react-hook-form` as devDependency
@@ -17,9 +17,9 @@
 
 ### New package
 
-**numra** — the definitive React number input with live formatting, full i18n, headless architecture, and WAI-ARIA accessibility.
+**raqam** — the definitive React number input with live formatting, full i18n, headless architecture, and WAI-ARIA accessibility.
 
-#### Core engine (`numra/core`, `numra/server`)
+#### Core engine (`raqam/core`, `raqam/server`)
 
 - **Live formatting** with cursor preservation via the accepted-characters boundary algorithm
 - `createFormatter` — `Intl.NumberFormat` wrapper with caching and locale info extraction
@@ -29,7 +29,7 @@
 - `registerLocale` — plugin API for custom digit blocks
 - `presets` — named `Intl.NumberFormatOptions` for currency, accounting, percent, compact, scientific, engineering, integer, financial, unit
 
-#### React hooks (`numra/react`)
+#### React hooks (`raqam/react`)
 
 - `useNumberFieldState` — state management (controlled/uncontrolled, formatting, clamping, validation, scrubbing, focus)
 - `useNumberField` — behavior hook (ARIA spinbutton, keyboard, wheel, paste, copy, IME, cursor)
@@ -38,7 +38,7 @@
 - `usePressAndHold` — press-and-hold acceleration for stepper buttons
 - `useScrubArea` — Pointer Lock API drag-to-adjust
 
-#### Headless components (`numra`)
+#### Headless components (`raqam`)
 
 - `NumberField.Root` — context provider with full state wiring
 - `NumberField.Input` — ARIA spinbutton text input with live formatting
@@ -53,11 +53,11 @@
 
 #### Locale plugins (tree-shakeable, ~100 B each)
 
-- `numra/locales/fa` — Persian / Extended Arabic-Indic digits (۰–۹)
-- `numra/locales/ar` — Arabic-Indic digits (٠–٩)
-- `numra/locales/hi` — Devanagari digits (०–९), supports lakh/crore grouping
-- `numra/locales/bn` — Bengali digits (০–৯)
-- `numra/locales/th` — Thai digits (๐–๙)
+- `raqam/locales/fa` — Persian / Extended Arabic-Indic digits (۰–۹)
+- `raqam/locales/ar` — Arabic-Indic digits (٠–٩)
+- `raqam/locales/hi` — Devanagari digits (०–९), supports lakh/crore grouping
+- `raqam/locales/bn` — Bengali digits (০–৯)
+- `raqam/locales/th` — Thai digits (๐–๙)
 
 #### Features
 
@@ -74,17 +74,17 @@
 - **Raw value** — `onRawChange` for arbitrary-precision financial use cases
 - **`data-*` attributes** — `data-focused`, `data-invalid`, `data-disabled`, `data-readonly`, `data-rtl` for CSS styling
 - **`render` prop** — element replacement without `asChild` peer dependency
-- **Server Component compatible** — `numra/server` (= `numra/core`) has zero React dependency
+- **Server Component compatible** — `raqam/server` (= `raqam/core`) has zero React dependency
 - **`"use client"` directive** — prepended to client bundles for Next.js App Router
 
 #### Bundle sizes
 
 | Entry              | Gzipped  |
 | ------------------ | -------- |
-| `numra/core`       | < 2 KB   |
-| `numra`            | < 9 KB   |
-| `numra/react`      | < 8 KB   |
-| `numra/locales/fa` | < 0.3 KB |
+| `raqam/core`       | < 2 KB   |
+| `raqam`            | < 9 KB   |
+| `raqam/react`      | < 8 KB   |
+| `raqam/locales/fa` | < 0.3 KB |
 
 #### Documentation
 

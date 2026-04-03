@@ -1,21 +1,21 @@
 [
   {
-    "name": "numra/core",
+    "name": "raqam/core",
     "path": "dist/core.js",
     "limit": "2 KB"
   },
   {
-    "name": "numra (full)",
+    "name": "raqam (full)",
     "path": "dist/index.js",
     "limit": "12 KB"
   },
   {
-    "name": "numra/react",
+    "name": "raqam/react",
     "path": "dist/react.js",
     "limit": "10 KB"
   },
   {
-    "name": "numra/locales/fa",
+    "name": "raqam/locales/fa",
     "path": "dist/locales/fa.js",
     "limit": "0.3 KB"
   }

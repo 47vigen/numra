@@ -55,7 +55,7 @@ export const Accounting: StoryObj = {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <p style={{ margin: 0, fontSize: 13, color: "#6b7280" }}>
         Type a negative number. The accounting format shows negatives as (1,234.56).
-        numra automatically parses parentheses back to negative values.
+        raqam automatically parses parentheses back to negative values.
       </p>
       <NumberField.Root
         locale="en-US"

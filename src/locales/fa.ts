@@ -9,7 +9,7 @@
  * Also registers the Arabic-Indic block for mixed-input scenarios.
  *
  * Usage:
- *   import 'numra/locales/fa'
+ *   import 'raqam/locales/fa'
  */
 import { registerLocale } from "../core/normalizer.js";
 

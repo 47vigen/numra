@@ -9,15 +9,15 @@ most common number formatting patterns. Pass them directly as `formatOptions`.
 ## Import
 
 ```ts
-import { presets } from "numra";
+import { presets } from "raqam";
 // or
-import { presets } from "numra/core";
+import { presets } from "raqam/core";
 ```
 
 ## Usage
 
 ```tsx
-import { presets } from "numra";
+import { presets } from "raqam";
 
 <NumberField.Root formatOptions={presets.currency("USD")} locale="en-US" />
 <NumberField.Root formatOptions={presets.percent} locale="en-US" />
@@ -52,7 +52,7 @@ presets.accounting("USD")
 ```
 
 Like `currency` but shows negative values in parentheses: `(1,234.56)`.
-numra automatically parses `(...)` back to a negative number.
+raqam automatically parses `(...)` back to a negative number.
 
 ---
 

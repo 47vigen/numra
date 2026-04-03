@@ -18,7 +18,7 @@ export const NumberFieldContext = createContext<NumberFieldContextValue | null>(
 export function useNumberFieldContext(): NumberFieldContextValue {
   const ctx = useContext(NumberFieldContext);
   if (!ctx) {
-    throw new Error("[numra] NumberField sub-components must be used inside <NumberField.Root>.");
+    throw new Error("[raqam] NumberField sub-components must be used inside <NumberField.Root>.");
   }
   return ctx;
 }
