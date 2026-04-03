@@ -1,5 +1,11 @@
 # raqam Changelog
 
+## 0.2.1
+
+### Patch Changes
+
+- 250aacd: Patch release to republish the package on npm.
+
 ## 0.2.0
 
 ### Minor Changes
