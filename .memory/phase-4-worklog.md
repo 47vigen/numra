@@ -3,7 +3,7 @@
 **Status:** ✅ COMPLETE  
 **Branch:** `claude/phase-4-implementation-Uqhgc`  
 **Date:** 2026-04-03  
-**Tests:** 219 → 335 passing (116 new tests; 0 failures)
+**Tests:** 219 → 337 passing (118 new; 0 failures)
 
 ---
 
@@ -15,8 +15,20 @@
 > - Playwright browser tests for cursor behavior in RTL
 
 The locale plugins and RTL rendering logic existed from Phases 1–3. Phase 4's work was
-purely **validation**: prove correctness through comprehensive tests and add browser-level
-Playwright infrastructure.
+**validation** (comprehensive tests + browser-level Playwright infrastructure) plus one
+real bug fix discovered through CI: smart backspace over grouping separators.
+
+---
+
+## Commits
+
+| SHA | Description |
+|-----|-------------|
+| `92a0196` | feat(phase-4): locale i18n integration — tests, RTL, Playwright E2E |
+| `3cd0667` | docs: add phase-4 worklog to .memory/ |
+| `3707c64` | fix(e2e): extract CT helpers so Playwright can mount components |
+| `947430b` | fix(e2e): smart backspace over separator + min/max clamping test timeout |
+| `8ca456b` | chore: ignore Playwright runtime artifacts |
 
 ---
 
@@ -43,9 +55,6 @@ export const LOCALE_CODES = ["bn", "bn-BD", "bn-IN"] as const;
 // th.ts
 export const LOCALE_CODES = ["th", "th-TH"] as const;
 ```
-
-**Why:** Enables IDE auto-complete, allows tests to use canonical locale lists, and
-documents the intended coverage scope of each plugin.
 
 ### A2. Fixed `locales/index.ts` barrel export
 
@@ -79,9 +88,51 @@ unchanged — they're the functional layer, `data-rtl` is the styling hook.
 
 ---
 
-## C. Locale Integration Tests (Vitest + React Testing Library)
+## C. Bug Fix: Smart Backspace Over Grouping Separator
 
-### C1. `src/locales/test-utils.ts`
+### Problem
+
+`cursor.ts` had an `acceptedCount - 1` adjustment for the backspace-over-separator case
+(lines 105–113), but it was dead code. By the time React's `onChange` fires, the browser
+has already removed the separator character — so `oldInput[cursor-1]` is a digit, never
+a comma. Without a fix, pressing Backspace with the cursor right after "1,|234" would
+remove the comma, which then immediately re-appeared on the next render, leaving the user
+unable to delete past grouping separators.
+
+### Fix (src/react/useNumberField.ts `handleKeyDown`)
+
+Intercept `Backspace` in `handleKeyDown` **before** the browser acts. When the cursor
+sits immediately after a grouping separator (no text selection, no modifier keys):
+1. `preventDefault()` — stop the browser's default deletion
+2. Remove both the separator (`cursor - 1`) and the preceding digit (`cursor - 2`)
+3. Parse and reformat the result
+4. Stash `pendingCursor.current = cursor - 2` for `useLayoutEffect` restoration
+
+```typescript
+if (key === "Backspace" && !e.shiftKey && !e.altKey && !e.metaKey && !e.ctrlKey) {
+  const cursor = input.selectionStart ?? 0;
+  const info = formatter.getLocaleInfo();
+  if (cursor === selEnd && cursor >= 2 && currentValue[cursor - 1] === info.groupingSeparator) {
+    e.preventDefault();
+    const rawEdited = currentValue.slice(0, cursor - 2) + currentValue.slice(cursor);
+    const parseResult = parser.parse(rawEdited);
+    state.setInputValue(parseResult.value !== null ? formatter.format(parseResult.value) : rawEdited);
+    pendingCursor.current = cursor - 2;
+    return;
+  }
+}
+```
+
+Added `formatter` and `parser` to `handleKeyDown`'s `useCallback` dependency array.
+
+Two Vitest unit tests added to `NumberField.test.tsx` to cover the behaviour in jsdom
+as a regression guard.
+
+---
+
+## D. Locale Integration Tests (Vitest + React Testing Library)
+
+### D1. `src/locales/test-utils.ts`
 
 Shared helper module (not exported publicly) providing:
 - `getLocaleInfo(locale)` — extracts separators/RTL flag from formatter
@@ -91,9 +142,7 @@ Shared helper module (not exported publicly) providing:
 - `toLocaleDigits(locale, ascii)` — convert ASCII digits to locale script via Intl
 - `localeUsesNativeDigits(locale)` — detect whether runtime ICU produces non-Latin digits
 
-### C2. `src/locales/locale-integration.test.tsx` (61 tests)
-
-Comprehensive test suite covering all spec requirements from DEFINITION.md §9:
+### D2. `src/locales/locale-integration.test.tsx` (61 tests)
 
 | Group | Tests | Coverage |
 |-------|-------|----------|
@@ -104,21 +153,9 @@ Comprehensive test suite covering all spec requirements from DEFINITION.md §9:
 | Unicode digit normalization | 10 | All 5 scripts + ASCII pass-through + mixed |
 | Parser: locale digit strings | 10 | Round-trip and raw digit string parsing |
 | React component digit input | 7 | fa-IR, ar-EG, hi-IN, bn-BD, th-TH typed input → numberValue |
-| Test utilities self-test | 2 | toLocaleDigits, localeUsesNativeDigits |
-| localeUsesNativeDigits | 2 | en-US/de-DE = false, fa-IR/ar-EG = boolean without throw |
+| Test utilities self-test | 4 | toLocaleDigits, localeUsesNativeDigits |
 
-**Key decisions:**
-- Locale plugins are imported as side-effects at the top of the test file (not in
-  beforeAll) to ensure digit blocks are registered before any test runs.
-- React component tests use `userEvent.type()` with raw Unicode digit codepoints to
-  simulate what a native Persian/Arabic keyboard actually produces.
-- Tests are tolerant of ICU availability: `localeUsesNativeDigits()` detects whether
-  the Node.js runtime was built with full-icu; tests that need native digits use this
-  to document the dependency rather than skip silently.
-
-### C3. `src/react/rtl.test.tsx` (55 tests)
-
-React-layer RTL rendering tests, covering the full CSS+ARIA+behavior surface:
+### D3. `src/react/rtl.test.tsx` (55 tests)
 
 | Group | Tests | Coverage |
 |-------|-------|----------|
@@ -135,69 +172,66 @@ React-layer RTL rendering tests, covering the full CSS+ARIA+behavior surface:
 
 ---
 
-## D. Playwright Browser Tests
+## E. Playwright Browser Tests
 
-### D1. Installation
+### E1. Installation
 
 `@playwright/experimental-ct-react@1.59.1` and `@playwright/test@1.59.1` added as
-devDependencies. Browser binaries not downloaded in this environment (no network access
-to storage.googleapis.com); CI handles browser installation via
-`npx playwright install --with-deps`.
+devDependencies. Browser binaries not downloadable in this environment (no network
+access); CI handles installation via `npx playwright install --with-deps`.
 
-### D2. `playwright-ct.config.ts`
+### E2. `playwright-ct.config.ts`
 
-Component Testing configuration:
 - Uses `@playwright/experimental-ct-react` for in-browser React component rendering
-  (no full dev server needed)
-- Alias map points `numra/*` to `./src/*` for test imports
+- Alias map: `numra/*` → `./src/*`
 - Projects: Chromium, Firefox, WebKit
-- `ctPort: 3100`, `retries: 2` in CI, `workers: 1` in CI, parallel otherwise
-- Uploads HTML report as artifact on failure
+- `retries: 2` in CI, `workers: 1` in CI
 
-### D3. `playwright/index.html` + `playwright/index.tsx`
+### E3. `playwright/index.html` + `playwright/index.tsx`
 
-Mount point for component tests. `index.tsx` pre-imports all 5 locale plugins so digit
-normalization is available in every browser test without per-test imports.
+Mount point. `index.tsx` pre-imports all 5 locale plugins globally.
 
-### D4. `e2e/rtl-cursor.spec.tsx`
+### E4. `e2e/components/cursor-test-field.tsx` + `e2e/components/locale-input-field.tsx`
 
-Cursor behavior tests that jsdom cannot simulate (real browser engine needed):
+Extracted shared component helpers (added in `3707c64` after CI revealed Playwright
+couldn't resolve inline component definitions from spec files):
+- `TestField` — bare input with locale prop for cursor tests
+- `Field` — input + inc/dec buttons for locale input tests
 
-1. **en-US control group** (2 tests): comma insertion keeps cursor at end; Backspace
-   after comma deletes the preceding digit.
-2. **fa-IR cursor** (2 tests): cursor stays at end after grouping separator insertion;
-   each digit press keeps cursor at end throughout typing sequence.
-3. **fa-IR backspace** (1 test): backspace when cursor is right after separator deletes
-   preceding digit; handles ICU-unavailability gracefully with `test.skip()`.
-4. **ar-EG cursor** (2 tests): same guarantees as fa-IR.
-5. **RTL attributes in browser** (3 tests): `data-rtl` present; computed direction is
-   `ltr`; en-US has no `data-rtl`.
-6. **Paste** (1 test): ASCII digit paste → cursor at end.
+### E5. `e2e/rtl-cursor.spec.tsx` (11 tests)
 
-### D5. `e2e/locale-input.spec.tsx`
+1. en-US control group: cursor after separator insertion; backspace over comma
+2. fa-IR: cursor at end after typing; each digit keeps cursor at end
+3. fa-IR backspace: separator + preceding digit deleted
+4. ar-EG: cursor at end; each digit keeps cursor at end
+5. RTL attributes in browser: `data-rtl`, computed `direction: ltr`, en-US has no `data-rtl`
+6. Paste: cursor at end after paste
 
-Locale and input correctness tests in real browsers:
+### E6. `e2e/locale-input.spec.tsx` (23 tests)
 
-1. **aria-valuenow** (5 tests): always a plain number, not locale-formatted string.
-2. **ASCII digit input** (7 tests): every locale accepts ASCII '99' → value 99.
-3. **Increment/decrement buttons** (4 tests): fa-IR, ar-EG, hi-IN with custom step.
-4. **min/max clamping** (2 tests): fa-IR cannot go below min; ar-EG cannot go above max.
-5. **Keyboard ArrowUp/Down** (3 tests): fa-IR, ar-EG, Shift+ArrowUp large step.
-6. **Formatted display** (2 tests): en-US displays "1,234"; de-DE displays "1.234".
+1. `aria-valuenow` is always a number (5 locales)
+2. ASCII digit input accepted in every locale (7 locales)
+3. Increment/decrement buttons in RTL locales (fa-IR, ar-EG, hi-IN)
+4. min/max clamping (fa-IR, ar-EG) — second click uses `{ force: true }`
+5. Keyboard ArrowUp/Down (fa-IR, ar-EG, Shift+ArrowUp)
+6. Formatted display (en-US "1,234", de-DE "1.234")
 
 ---
 
-## E. CI Integration
+## F. CI Integration
 
-### E1. `.github/workflows/e2e.yml`
+### F1. `.github/workflows/e2e.yml`
 
-Parallel matrix of Chromium, Firefox, WebKit. Each job:
-1. Installs deps
-2. Installs only the browser it needs (`npx playwright install --with-deps ${{ matrix.project }}`)
-3. Runs `pnpm test:e2e --project=${{ matrix.project }}`
-4. Uploads Playwright HTML report artifact on failure (retained 14 days)
+Parallel matrix of Chromium, Firefox, WebKit. Each job installs only its own browser
+via `npx playwright install --with-deps ${{ matrix.project }}`, runs
+`pnpm test:e2e --project=...`, uploads HTML report artifact on failure (14-day retention).
 
-### E2. `package.json` scripts
+### F2. `.gitignore`
+
+Added `playwright-report/`, `test-results/`, `playwright/.cache/` — Playwright runtime
+artifacts that must not be committed.
+
+### F3. `package.json` scripts
 
 ```json
 "test:e2e": "playwright test -c playwright-ct.config.ts",
@@ -209,30 +243,26 @@ Parallel matrix of Chromium, Firefox, WebKit. Each job:
 
 ## Metrics
 
-| Metric | Phase 3 | Phase 4 |
-|--------|---------|---------|
-| Vitest tests | 219 | **335** (+116) |
+| Metric | Phase 3 | Phase 4 (final) |
+|--------|---------|-----------------|
+| Vitest tests | 219 | **337** (+118) |
 | TypeScript errors | 0 | **0** |
 | Build warnings (new) | 0 | **0** |
 | Locale plugins | 5 | **5** (+ LOCALE_CODES exports) |
-| Playwright test files | 0 | **2** (browser, CI-ready) |
+| Playwright test files | 0 | **2** (34 browser tests, CI-ready) |
 | CI workflows | 1 | **2** (+e2e.yml) |
+| Bug fixes | — | **1** (smart backspace over grouping separator) |
 
 ---
 
 ## Known Limitations
 
-- **Playwright browsers not downloaded locally** — `storage.googleapis.com` is
-  unreachable in this environment. Browser tests are designed for CI. Run locally with
-  `npx playwright install` after network is available.
-- **ICU-dependent tests** — some test assertions depend on `Intl.NumberFormat` producing
-  locale-native digits (e.g., `۱۲۳` for fa-IR). Node.js `small-icu` builds will produce
-  ASCII digits for these locales; the `localeUsesNativeDigits()` helper documents this
-  dependency. All test assertions that would fail without full-icu are either written to
-  be ICU-agnostic (round-trip tests use `createFormatter` output as input to `createParser`)
-  or use raw Unicode codepoints directly.
+- **Playwright browsers not downloaded locally** — `storage.googleapis.com` unreachable
+  in this dev environment. Run `npx playwright install` locally after gaining network
+  access; CI installs on every run.
+- **ICU-dependent tests** — assertions that expect locale-native digits (e.g., `۱۲۳` for
+  fa-IR) depend on Node.js being built with full-icu. The `localeUsesNativeDigits()`
+  helper documents this; round-trip tests are written to be ICU-agnostic.
 - **`"sideEffects": false` and locale/index** — the barrel export triggers module
-  evaluation through named re-exports. Bundlers that perform aggressive dead-code
-  elimination may still tree-shake locale registration if the `LOCALE_CODES` re-export
-  is not imported. Consumers should import locale plugins individually
-  (`import 'numra/locales/fa'`) when bundler configuration is uncertain.
+  evaluation via named re-exports. Consumers should import locale plugins individually
+  (`import 'numra/locales/fa'`) when bundler dead-code elimination behaviour is uncertain.
