@@ -4,7 +4,7 @@ import { NumberField } from "../react/NumberField.js";
 import { useNumberFieldFormat } from "../react/useNumberFieldFormat.js";
 
 const meta = {
-  title: "numra/Basic Usage",
+  title: "raqam/Basic Usage",
   component: NumberField.Root,
   tags: ["autodocs"],
 } satisfies Meta<typeof NumberField.Root>;
@@ -155,11 +155,11 @@ export const DataFocusedStyling: StoryObj = {
   render: () => (
     <div style={{ fontFamily: "system-ui", display: "flex", flexDirection: "column", gap: 12 }}>
       <style>{`
-        .numra-demo[data-focused] .numra-group {
+        .raqam-demo[data-focused] .raqam-group {
           border-color: #2563eb;
           box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
-        .numra-demo[data-invalid] .numra-group {
+        .raqam-demo[data-invalid] .raqam-group {
           border-color: #dc2626;
         }
       `}</style>
@@ -170,13 +170,13 @@ export const DataFocusedStyling: StoryObj = {
       <NumberField.Root
         locale="en-US"
         defaultValue={42}
-        className="numra-demo"
+        className="raqam-demo"
       >
         <NumberField.Label style={{ fontSize: 13, fontWeight: 500 }}>
           Amount
         </NumberField.Label>
         <NumberField.Group
-          className="numra-group"
+          className="raqam-group"
           style={{
             display: "flex",
             border: "1px solid #d1d5db",

@@ -4,7 +4,7 @@ import { useNumberFieldState } from "../react/useNumberFieldState.js";
 import { useNumberField } from "../react/useNumberField.js";
 
 const meta: Meta = {
-  title: "numra/Hook API",
+  title: "raqam/Hook API",
   parameters: {
     docs: {
       description: {

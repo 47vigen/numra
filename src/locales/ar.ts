@@ -4,7 +4,7 @@
  * Registers Arabic-Indic digit block (U+0660–U+0669).
  *
  * Usage:
- *   import 'numra/locales/ar'
+ *   import 'raqam/locales/ar'
  */
 import { registerLocale } from "../core/normalizer.js";
 

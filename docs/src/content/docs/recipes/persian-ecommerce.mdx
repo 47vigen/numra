@@ -15,13 +15,13 @@ This recipe shows how to build a complete Persian-language price input that:
 
 ```ts
 // app/layout.tsx or main.tsx
-import "numra/locales/fa";  // Register Persian digit block
+import "raqam/locales/fa";  // Register Persian digit block
 ```
 
 ## Basic toman input
 
 ```tsx
-import { NumberField } from "numra";
+import { NumberField } from "raqam";
 
 export function TomanInput() {
   return (
@@ -36,7 +36,7 @@ export function TomanInput() {
       <NumberField.Label>قیمت</NumberField.Label>  {/* "Price" */}
       <NumberField.Group>
         <NumberField.Decrement>−</NumberField.Decrement>
-        <NumberField.Input dir="ltr" />  {/* numra sets dir="ltr" internally */}
+        <NumberField.Input dir="ltr" />  {/* raqam sets dir="ltr" internally */}
         <NumberField.Increment>+</NumberField.Increment>
       </NumberField.Group>
     </NumberField.Root>
@@ -50,7 +50,7 @@ Displays: `۱٬۲۳۴ تومان`
 
 ```tsx
 import { useState } from "react";
-import { NumberField, useNumberFieldFormat } from "numra";
+import { NumberField, useNumberFieldFormat } from "raqam";
 
 export function ProductPriceEditor() {
   const [price, setPrice] = useState<number | null>(125000);
@@ -93,7 +93,7 @@ export function ProductPriceEditor() {
 
 Persian digit normalization is transparent:
 
-| User types | numra stores | Displays |
+| User types | raqam stores | Displays |
 |-----------|-------------|---------|
 | `۱۲۳۴` (Persian) | `1234` | `۱٬۲۳۴` |
 | `1234` (ASCII) | `1234` | `۱٬۲۳۴` |
@@ -142,7 +142,7 @@ If you want the `ریال` symbol from `Intl.NumberFormat`:
 For server-side price display in Persian:
 
 ```ts
-import { createFormatter } from "numra/server";
+import { createFormatter } from "raqam/server";
 
 const priceFormatter = createFormatter({
   locale: "fa-IR",
@@ -157,5 +157,5 @@ const displayPrice = priceFormatter.format(125000);
 <Aside>
   The `fa-IR` locale uses `٬` (Arabic thousands separator, U+066C) and `٫`
   (Arabic decimal separator, U+066B) — different from the ASCII `,` and `.`.
-  numra extracts these from `Intl.NumberFormat` automatically.
+  raqam extracts these from `Intl.NumberFormat` automatically.
 </Aside>

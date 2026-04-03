@@ -1,12 +1,12 @@
 ---
 title: react-hook-form
-description: Integrating numra with react-hook-form using the Controller pattern.
+description: Integrating raqam with react-hook-form using the Controller pattern.
 ---
 
 import { Aside } from "@astrojs/starlight/components";
 
-numra works naturally with react-hook-form via the `Controller` component.
-The key is: numra is `value`/`onChange` controlled, and `Controller` supplies
+raqam works naturally with react-hook-form via the `Controller` component.
+The key is: raqam is `value`/`onChange` controlled, and `Controller` supplies
 exactly those.
 
 ## Installation
@@ -19,7 +19,7 @@ npm install react-hook-form
 
 ```tsx
 import { useForm, Controller } from "react-hook-form";
-import { NumberField } from "numra";
+import { NumberField } from "raqam";
 
 type FormValues = {
   price: number | null;
@@ -71,9 +71,9 @@ export function PriceForm() {
 }
 ```
 
-## Using numra's built-in validate prop
+## Using raqam's built-in validate prop
 
-For simple validation, use numra's `validate` prop directly alongside
+For simple validation, use raqam's `validate` prop directly alongside
 react-hook-form — this updates `aria-invalid` and renders `NumberField.ErrorMessage`:
 
 ```tsx

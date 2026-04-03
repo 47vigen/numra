@@ -1,11 +1,11 @@
-# Contributing to numra
+# Contributing to raqam
 
 ## Development setup
 
 ```bash
 # Clone and install
 git clone https://github.com/47vigen/numra.git
-cd numra
+cd raqam
 pnpm install
 
 # Run tests in watch mode

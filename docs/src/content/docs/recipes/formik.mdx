@@ -1,6 +1,6 @@
 ---
 title: Formik
-description: Integrating numra with Formik using the useFormik hook or Field component.
+description: Integrating raqam with Formik using the useFormik hook or Field component.
 ---
 
 ## Installation
@@ -13,7 +13,7 @@ npm install formik
 
 ```tsx
 import { useFormik } from "formik";
-import { NumberField } from "numra";
+import { NumberField } from "raqam";
 
 export function OrderForm() {
   const formik = useFormik({
@@ -122,7 +122,7 @@ export function PriceForm() {
 
 ## Tips
 
-- Use `setFieldValue("field", v)` (not Formik's `handleChange`) since numra
+- Use `setFieldValue("field", v)` (not Formik's `handleChange`) since raqam
   gives you a `number | null`, not a DOM event.
 - Use `setFieldTouched("field")` in `onBlur` to trigger touched state.
 - Pass the Formik error message directly to `NumberField.ErrorMessage` as

@@ -3,7 +3,7 @@ title: Accessibility
 description: WAI-ARIA spinbutton role, keyboard navigation, and screen reader behaviour.
 ---
 
-numra implements the WAI-ARIA
+raqam implements the WAI-ARIA
 [`spinbutton`](https://www.w3.org/WAI/ARIA/apg/patterns/spinbutton/) pattern.
 All ARIA attributes are generated automatically — you don't need to add them
 manually.
@@ -109,12 +109,12 @@ announce the message immediately when it appears.
 
 ## Automated testing
 
-numra is tested with `jest-axe` for WCAG compliance:
+raqam is tested with `jest-axe` for WCAG compliance:
 
 ```ts
 import { axe, toHaveNoViolations } from "jest-axe";
 import { render } from "@testing-library/react";
-import { NumberField } from "numra";
+import { NumberField } from "raqam";
 
 expect.extend(toHaveNoViolations);
 

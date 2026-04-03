@@ -35,13 +35,13 @@ export default defineConfig({
       // Inherit from project's vite-compatible tsconfig
       resolve: {
         alias: {
-          // Allow tests to import 'numra' as if installed
-          numra: "./src/index.ts",
-          "numra/locales/fa": "./src/locales/fa.ts",
-          "numra/locales/ar": "./src/locales/ar.ts",
-          "numra/locales/hi": "./src/locales/hi.ts",
-          "numra/locales/bn": "./src/locales/bn.ts",
-          "numra/locales/th": "./src/locales/th.ts",
+          // Allow tests to import 'raqam' as if installed
+          raqam: "./src/index.ts",
+          "raqam/locales/fa": "./src/locales/fa.ts",
+          "raqam/locales/ar": "./src/locales/ar.ts",
+          "raqam/locales/hi": "./src/locales/hi.ts",
+          "raqam/locales/bn": "./src/locales/bn.ts",
+          "raqam/locales/th": "./src/locales/th.ts",
         },
       },
     },

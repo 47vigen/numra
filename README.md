@@ -1,16 +1,16 @@
-# numra 🔢
+# raqam 🔢
 
 **The definitive React number input: live formatting, full i18n, headless, accessible.**
 
-[![npm version](https://img.shields.io/npm/v/numra)](https://www.npmjs.com/package/numra)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/numra)](https://bundlephobia.com/package/numra)
+[![npm version](https://img.shields.io/npm/v/raqam)](https://www.npmjs.com/package/raqam)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/raqam)](https://bundlephobia.com/package/raqam)
 [![CI](https://img.shields.io/github/actions/workflow/status/47vigen/numra/ci.yml?label=CI)](https://github.com/47vigen/numra/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)](https://www.typescriptlang.org/)
-[![license](https://img.shields.io/npm/l/numra)](LICENSE)
+[![license](https://img.shields.io/npm/l/raqam)](LICENSE)
 
-## ✨ Why numra?
+## ✨ Why raqam?
 
-| Feature | Base UI | React Aria | Mantine | **numra** |
+| Feature | Base UI | React Aria | Mantine | **raqam** |
 |---------|:-------:|:----------:|:-------:|:---------:|
 | Live formatting while typing | ❌ blur | ❌ blur | ✅ | ✅ |
 | Truly headless | ✅ | ✅ | ❌ | ✅ |
@@ -18,14 +18,14 @@
 | WAI-ARIA spinbutton | ✅ | ✅✅ | ⚠️ | ✅✅ |
 | Bundle size | ~10 KB | ~30 KB | ~60 KB | **~1.7 KB core** |
 
-No existing package combines all four. numra does.
+No existing package combines all four. raqam does.
 
 ## 📦 Installation
 
 ```bash
-npm install numra
+npm install raqam
 # or
-pnpm add numra
+pnpm add raqam
 ```
 
 **Peer dependencies:** React 18 or 19.
@@ -35,7 +35,7 @@ pnpm add numra
 ### Hook API
 
 ```tsx
-import { useNumberFieldState, useNumberField } from 'numra'
+import { useNumberFieldState, useNumberField } from 'raqam'
 import { useRef } from 'react'
 
 function PriceInput() {
@@ -63,7 +63,7 @@ function PriceInput() {
 ### Headless Component API
 
 ```tsx
-import { NumberField } from 'numra'
+import { NumberField } from 'raqam'
 
 function PriceField() {
   return (
@@ -90,7 +90,7 @@ function PriceField() {
 ## 🎨 Format presets
 
 ```tsx
-import { presets, NumberField } from 'numra'
+import { presets, NumberField } from 'raqam'
 
 <NumberField.Root formatOptions={presets.currency('USD')} />           // $1,234.56
 <NumberField.Root formatOptions={presets.accounting('USD')} />         // (1,234.56)
@@ -107,15 +107,15 @@ import { presets, NumberField } from 'numra'
 Persian input with native digits — just import the plugin and set the locale:
 
 ```tsx
-import 'numra/locales/fa'  // registers ۰–۹ digit normalization (< 200 B)
-import { NumberField } from 'numra'
+import 'raqam/locales/fa'  // registers ۰–۹ digit normalization (< 200 B)
+import { NumberField } from 'raqam'
 
 <NumberField.Root
   locale="fa-IR"
   formatOptions={{ style: 'currency', currency: 'IRR' }}
   suffix=" تومان"
 />
-// user types ۱۲۳۴, numra parses and formats it correctly in real-time
+// user types ۱۲۳۴, raqam parses and formats it correctly in real-time
 ```
 
 Supported scripts: 🇮🇷 Persian `fa`, 🇸🇦 Arabic `ar`, 🇧🇩 Bengali `bn`, 🇮🇳 Hindi `hi`, 🇹🇭 Thai `th`. RTL is auto-detected and handled.
@@ -139,7 +139,7 @@ Supported scripts: 🇮🇷 Persian `fa`, 🇸🇦 Arabic `ar`, 🇧🇩 Bengali
 ## 👁️ Display-only formatting
 
 ```tsx
-import { useNumberFieldFormat } from 'numra'
+import { useNumberFieldFormat } from 'raqam'
 
 function PriceDisplay({ price }: { price: number }) {
   const formatted = useNumberFieldFormat(price, {
@@ -150,10 +150,10 @@ function PriceDisplay({ price }: { price: number }) {
 }
 ```
 
-Works in React Server Components too via `numra/server`:
+Works in React Server Components too via `raqam/server`:
 
 ```tsx
-import { createFormatter } from 'numra/server'  // zero React deps
+import { createFormatter } from 'raqam/server'  // zero React deps
 
 const formatter = createFormatter({
   locale: 'en-US',
@@ -192,7 +192,7 @@ Uses the Pointer Lock API so the cursor never hits the screen edge during drag.
 
 ```tsx
 import { Controller } from 'react-hook-form'
-import { NumberField } from 'numra'
+import { NumberField } from 'raqam'
 
 <Controller
   name="price"
@@ -299,7 +299,7 @@ Additional props beyond state options:
 
 ### `useNumberFieldFormat(value, options)`
 
-Display-only formatting hook. Returns a formatted string. Zero state overhead — safe in RSC via `numra/server`.
+Display-only formatting hook. Returns a formatted string. Zero state overhead — safe in RSC via `raqam/server`.
 
 ### `NumberField.*` components
 
@@ -334,10 +334,10 @@ Actual sizes (brotli compressed):
 
 | Entry | Size |
 |-------|------|
-| `numra/core` | ~1.7 KB |
-| `numra` (hooks + components) | ~7 KB |
-| `numra/react` | ~6.8 KB |
-| `numra/locales/fa` | ~200 B |
+| `raqam/core` | ~1.7 KB |
+| `raqam` (hooks + components) | ~7 KB |
+| `raqam/react` | ~6.8 KB |
+| `raqam/locales/fa` | ~200 B |
 
 ## 📄 License
 

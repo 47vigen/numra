@@ -10,9 +10,9 @@ read-only numeric display.
 ## Import
 
 ```ts
-import { useNumberFieldFormat } from "numra";
+import { useNumberFieldFormat } from "raqam";
 // or
-import { useNumberFieldFormat } from "numra/react";
+import { useNumberFieldFormat } from "raqam/react";
 ```
 
 ## Signature
@@ -42,7 +42,7 @@ A formatted string, or `""` when `value` is null/undefined/NaN.
 ## Example — price table
 
 ```tsx
-import { useNumberFieldFormat } from "numra";
+import { useNumberFieldFormat } from "raqam";
 
 function PriceTag({ amount }: { amount: number }) {
   const formatted = useNumberFieldFormat(amount, {
@@ -60,10 +60,10 @@ function PriceTag({ amount }: { amount: number }) {
 
 ## Example — server-side use
 
-For React Server Components or SSR, import from `numra/server` (zero React dependency):
+For React Server Components or SSR, import from `raqam/server` (zero React dependency):
 
 ```ts
-import { createFormatter } from "numra/server";
+import { createFormatter } from "raqam/server";
 
 const formatter = createFormatter({
   locale: "en-US",

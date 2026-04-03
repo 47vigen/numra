@@ -4,7 +4,7 @@
  * Registers Thai digit block (U+0E50–U+0E59).
  *
  * Usage:
- *   import 'numra/locales/th'
+ *   import 'raqam/locales/th'
  */
 import { registerLocale } from "../core/normalizer.js";
 

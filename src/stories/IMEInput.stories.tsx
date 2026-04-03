@@ -12,7 +12,7 @@ const meta: Meta = {
 
 When users type Chinese, Japanese, or Korean numbers via IME, the browser fires
 \`compositionstart\` / \`compositionend\` events wrapping the actual input.
-numra suspends live formatting during composition (to avoid corrupting partial
+raqam suspends live formatting during composition (to avoid corrupting partial
 composed characters) and applies full formatting when composition ends.
 
 **How to test:**
@@ -60,7 +60,7 @@ export const ZhCNInput: StoryObj = {
       <div style={{ padding: 12, background: "#fef3c7", borderRadius: 8, fontSize: 13 }}>
         <strong>Test with Chinese IME:</strong> Switch to Chinese input (Pinyin/Wubi),
         type &quot;123456&quot; — the IME may produce characters like &quot;一二三&quot; first.
-        numra suspends formatting during composition and applies it after you confirm.
+        raqam suspends formatting during composition and applies it after you confirm.
       </div>
       <NumberField.Root
         locale="zh-CN"

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { NumberField } from "../react/NumberField.js";
 
 const meta = {
-  title: "numra/ScrubArea",
+  title: "raqam/ScrubArea",
   component: NumberField.Root,
   tags: ["autodocs"],
 } satisfies Meta<typeof NumberField.Root>;

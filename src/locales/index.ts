@@ -3,7 +3,7 @@
  * Persian, Arabic, Bengali, Hindi, and Thai digit systems in one shot.
  *
  * Usage:
- *   import 'numra/locales'
+ *   import 'raqam/locales'
  *
  * Named re-exports alias each LOCALE_CODES array to avoid ambiguity:
  *   FA_LOCALE_CODES, AR_LOCALE_CODES, BN_LOCALE_CODES, HI_LOCALE_CODES, TH_LOCALE_CODES
