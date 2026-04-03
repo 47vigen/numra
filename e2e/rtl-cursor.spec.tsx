@@ -18,23 +18,7 @@
 
 import { test, expect } from "@playwright/experimental-ct-react";
 import React from "react";
-import { NumberField } from "../src/react/NumberField";
-
-// ── Helper component ──────────────────────────────────────────────────────────
-
-interface TestFieldProps {
-  locale: string;
-  defaultValue?: number;
-  onValueChange?: (v: number | null) => void;
-}
-
-function TestField({ locale, defaultValue, onValueChange }: TestFieldProps) {
-  return (
-    <NumberField.Root locale={locale} defaultValue={defaultValue} onValueChange={onValueChange}>
-      <NumberField.Input data-testid="input" />
-    </NumberField.Root>
-  );
-}
+import { TestField } from "./components/cursor-test-field";
 
 // ── 1. en-US (control): cursor after grouping separator insertion ─────────────
 

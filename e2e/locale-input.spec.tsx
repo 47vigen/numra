@@ -12,35 +12,7 @@
 
 import { test, expect } from "@playwright/experimental-ct-react";
 import React from "react";
-import { NumberField } from "../src/react/NumberField";
-
-// ── Helper component with optional min/max/step ───────────────────────────────
-
-interface FieldProps {
-  locale: string;
-  defaultValue?: number;
-  minValue?: number;
-  maxValue?: number;
-  step?: number;
-  onValueChange?: (v: number | null) => void;
-}
-
-function Field({ locale, defaultValue, minValue, maxValue, step, onValueChange }: FieldProps) {
-  return (
-    <NumberField.Root
-      locale={locale}
-      defaultValue={defaultValue}
-      minValue={minValue}
-      maxValue={maxValue}
-      step={step ?? 1}
-      onValueChange={onValueChange}
-    >
-      <NumberField.Decrement data-testid="dec">-</NumberField.Decrement>
-      <NumberField.Input data-testid="input" />
-      <NumberField.Increment data-testid="inc">+</NumberField.Increment>
-    </NumberField.Root>
-  );
-}
+import { Field } from "./components/locale-input-field";
 
 // ── 1. aria-valuenow reflects parsed numeric value ────────────────────────────
 
