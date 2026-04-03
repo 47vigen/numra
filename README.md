@@ -1,22 +1,26 @@
-# numra
+# numra 🔢
 
 **The definitive React number input: live formatting, full i18n, headless, accessible.**
 
 [![npm version](https://img.shields.io/npm/v/numra)](https://www.npmjs.com/package/numra)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/numra)](https://bundlephobia.com/package/numra)
+[![CI](https://img.shields.io/github/actions/workflow/status/47vigen/numra/ci.yml?label=CI)](https://github.com/47vigen/numra/actions)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)](https://www.typescriptlang.org/)
 [![license](https://img.shields.io/npm/l/numra)](LICENSE)
 
-## Why numra?
+## ✨ Why numra?
 
-| Feature | Base UI | React Aria | Mantine | numra |
-|---------|---------|------------|---------|-------|
-| Live formatting | ❌ blur | ❌ blur | ✅ | ✅ |
-| Headless | ✅ | ✅ | ❌ | ✅ |
-| i18n digit input (Persian, Arabic…) | ❌ | ✅ | ❌ | ✅ |
-| Accessibility (WCAG 2.1) | ✅ | ✅✅ | ⚠️ | ✅✅ |
-| Bundle size | ~10 KB | ~30 KB | ~60 KB | **< 2 KB core** |
+| Feature | Base UI | React Aria | Mantine | **numra** |
+|---------|:-------:|:----------:|:-------:|:---------:|
+| Live formatting while typing | ❌ blur | ❌ blur | ✅ | ✅ |
+| Truly headless | ✅ | ✅ | ❌ | ✅ |
+| i18n digit input (Persian ۱۲۳, Arabic ١٢٣…) | ❌ | ✅ | ❌ | ✅ |
+| WAI-ARIA spinbutton | ✅ | ✅✅ | ⚠️ | ✅✅ |
+| Bundle size | ~10 KB | ~30 KB | ~60 KB | **~1.7 KB core** |
 
-## Installation
+No existing package combines all four. numra does.
+
+## 📦 Installation
 
 ```bash
 npm install numra
@@ -24,7 +28,9 @@ npm install numra
 pnpm add numra
 ```
 
-## Quick start
+**Peer dependencies:** React 18 or 19.
+
+## 🚀 Quick start
 
 ### Hook API
 
@@ -70,9 +76,9 @@ function PriceField() {
     >
       <NumberField.Label>Price</NumberField.Label>
       <NumberField.Group>
-        <NumberField.Decrement />
+        <NumberField.Decrement>−</NumberField.Decrement>
         <NumberField.Input />
-        <NumberField.Increment />
+        <NumberField.Increment>+</NumberField.Increment>
       </NumberField.Group>
       <NumberField.Description>Enter the product price</NumberField.Description>
       <NumberField.ErrorMessage />
@@ -81,42 +87,27 @@ function PriceField() {
 }
 ```
 
-## Format presets
+## 🎨 Format presets
 
 ```tsx
 import { presets, NumberField } from 'numra'
 
-// Currency
-<NumberField.Root formatOptions={presets.currency('USD')} />
-
-// Accounting (negatives as parentheses: (1,234.56))
-<NumberField.Root formatOptions={presets.accounting('USD')} />
-
-// Percentage
-<NumberField.Root formatOptions={presets.percent} />
-
-// Compact: "1.2K", "3.4M"
-<NumberField.Root formatOptions={presets.compact} />
-
-// Scientific notation
-<NumberField.Root formatOptions={presets.scientific} />
-
-// Integer only
-<NumberField.Root formatOptions={presets.integer} />
-
-// Financial (always 2 decimal places)
-<NumberField.Root formatOptions={presets.financial} fixedDecimalScale />
-
-// Unit
-<NumberField.Root formatOptions={presets.unit('kilometer-per-hour')} />
+<NumberField.Root formatOptions={presets.currency('USD')} />           // $1,234.56
+<NumberField.Root formatOptions={presets.accounting('USD')} />         // (1,234.56)
+<NumberField.Root formatOptions={presets.percent} />                   // 12.3%
+<NumberField.Root formatOptions={presets.compact} />                   // 1.2K
+<NumberField.Root formatOptions={presets.scientific} />                // 1.23E3
+<NumberField.Root formatOptions={presets.integer} />                   // 1,234
+<NumberField.Root formatOptions={presets.financial} fixedDecimalScale /> // 1,234.00
+<NumberField.Root formatOptions={presets.unit('kilometer-per-hour')} /> // 120 km/h
 ```
 
-## Locales & i18n
+## 🌍 Locales & i18n
 
-Persian (Farsi) input with native digits:
+Persian input with native digits — just import the plugin and set the locale:
 
 ```tsx
-import 'numra/locales/fa'  // registers Persian digit normalization
+import 'numra/locales/fa'  // registers ۰–۹ digit normalization (< 200 B)
 import { NumberField } from 'numra'
 
 <NumberField.Root
@@ -124,11 +115,12 @@ import { NumberField } from 'numra'
   formatOptions={{ style: 'currency', currency: 'IRR' }}
   suffix=" تومان"
 />
+// user types ۱۲۳۴, numra parses and formats it correctly in real-time
 ```
 
-The user can type `۱٬۲۳۴` (Persian digits) and numra parses it correctly. Supported scripts: Persian (fa), Arabic (ar), Bengali (bn), Hindi (hi), Thai (th).
+Supported scripts: 🇮🇷 Persian `fa`, 🇸🇦 Arabic `ar`, 🇧🇩 Bengali `bn`, 🇮🇳 Hindi `hi`, 🇹🇭 Thai `th`. RTL is auto-detected and handled.
 
-## Custom validation
+## ✅ Custom validation
 
 ```tsx
 <NumberField.Root
@@ -140,11 +132,11 @@ The user can type `۱٬۲۳۴` (Persian digits) and numra parses it correctly. S
   }}
 >
   <NumberField.Input />
-  <NumberField.ErrorMessage /> {/* auto-renders validate() error string */}
+  <NumberField.ErrorMessage /> {/* auto-renders the validate() error string */}
 </NumberField.Root>
 ```
 
-## Display-only formatting
+## 👁️ Display-only formatting
 
 ```tsx
 import { useNumberFieldFormat } from 'numra'
@@ -158,41 +150,19 @@ function PriceDisplay({ price }: { price: number }) {
 }
 ```
 
-## Arbitrary-precision string mode
-
-For financial apps that need to avoid IEEE 754 float rounding:
+Works in React Server Components too via `numra/server`:
 
 ```tsx
-<NumberField.Root
-  onRawChange={(rawValue) => {
-    // rawValue is the exact string the user typed (e.g. "0.1000000001")
-    // before any JS float conversion — feed this to your BigDecimal library
-    myDecimal.set(rawValue)
-  }}
-/>
+import { createFormatter } from 'numra/server'  // zero React deps
+
+const formatter = createFormatter({
+  locale: 'en-US',
+  formatOptions: { style: 'currency', currency: 'USD' },
+})
+const displayPrice = formatter.format(1234.56)  // "$1,234.56"
 ```
 
-The component also exposes `state.rawValue` from the hook API.
-
-## Custom formatter/parser
-
-```tsx
-import Decimal from 'decimal.js'
-
-<NumberField.Root
-  formatValue={(value) => new Decimal(value).toFixed(8)}
-  parseValue={(input) => {
-    try {
-      const d = new Decimal(input)
-      return { value: d.toNumber(), isIntermediate: false }
-    } catch {
-      return { value: null, isIntermediate: input.endsWith('.') }
-    }
-  }}
-/>
-```
-
-## ScrubArea (drag to change value)
+## 🖱️ ScrubArea (drag to change value)
 
 ```tsx
 <NumberField.Root defaultValue={50} minValue={0} maxValue={100}>
@@ -204,17 +174,21 @@ import Decimal from 'decimal.js'
 </NumberField.Root>
 ```
 
-## CSS styling with data attributes
+Uses the Pointer Lock API so the cursor never hits the screen edge during drag.
+
+## 💄 CSS styling with data attributes
 
 ```css
-/* State-based styling — no JS needed */
-[data-focused] { outline: 2px solid blue; }
-[data-invalid] { border-color: red; }
-[data-disabled] { opacity: 0.5; }
+/* All state-based styling — no JS needed */
+[data-focused]   { outline: 2px solid blue; }
+[data-invalid]   { border-color: red; }
+[data-disabled]  { opacity: 0.5; }
+[data-readonly]  { background: #f5f5f5; }
+[data-rtl]       { /* RTL-specific overrides */ }
 [data-scrubbing] { cursor: ew-resize; }
 ```
 
-## react-hook-form integration
+## 🔗 react-hook-form integration
 
 ```tsx
 import { Controller } from 'react-hook-form'
@@ -238,38 +212,59 @@ import { NumberField } from 'numra'
 />
 ```
 
-## Server Components (Next.js App Router)
+## ⚡ Arbitrary-precision string mode
+
+For financial apps that need to avoid IEEE 754 float rounding:
 
 ```tsx
-// app/page.tsx — Server Component
-import { createFormatter } from 'numra/server'  // zero React deps
-
-const formatter = createFormatter({ locale: 'en-US', formatOptions: { style: 'currency', currency: 'USD' } })
-const displayPrice = formatter.format(1234.56)  // "$1,234.56"
+<NumberField.Root
+  onRawChange={(rawValue) => {
+    // rawValue is the exact string before any JS float conversion
+    // e.g. "0.1000000001" — feed it to your BigDecimal library
+    myDecimal.set(rawValue)
+  }}
+/>
 ```
 
-Client components that accept user input must be in a `"use client"` file — numra marks all client hooks/components automatically.
+Also available as `state.rawValue` from the hook API.
 
-## API Reference
+## 🔧 Custom formatter / parser
+
+```tsx
+import Decimal from 'decimal.js'
+
+<NumberField.Root
+  formatValue={(value) => new Decimal(value).toFixed(8)}
+  parseValue={(input) => {
+    try {
+      return { value: new Decimal(input).toNumber(), isIntermediate: false }
+    } catch {
+      return { value: null, isIntermediate: input.endsWith('.') }
+    }
+  }}
+/>
+```
+
+## 📐 API Reference
 
 ### `useNumberFieldState(options)`
 
-State management hook. Returns `NumberFieldState`.
+State management hook — returns `NumberFieldState`.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `value` | `number \| null` | — | Controlled value |
 | `defaultValue` | `number` | — | Uncontrolled default |
 | `onChange` | `(value: number \| null) => void` | — | Fires on every change |
-| `onRawChange` | `(raw: string \| null) => void` | — | Fires with unformatted string |
+| `onRawChange` | `(raw: string \| null) => void` | — | Fires with raw unformatted string |
 | `locale` | `string` | browser | BCP 47 locale tag |
 | `formatOptions` | `Intl.NumberFormatOptions` | `{}` | Full Intl options |
 | `minValue` | `number` | — | Minimum value |
 | `maxValue` | `number` | — | Maximum value |
 | `step` | `number` | `1` | Arrow key step |
 | `largeStep` | `number` | `step × 10` | Shift+Arrow step |
-| `smallStep` | `number` | `step × 0.1` | Ctrl+Arrow step |
-| `clampBehavior` | `"blur" \| "strict" \| "none"` | `"blur"` | When to clamp |
+| `smallStep` | `number` | `step × 0.1` | Ctrl/Meta+Arrow step |
+| `clampBehavior` | `"blur" \| "strict" \| "none"` | `"blur"` | When to clamp to min/max |
 | `allowNegative` | `boolean` | `true` | Allow negative values |
 | `allowDecimal` | `boolean` | `true` | Allow decimal values |
 | `fixedDecimalScale` | `boolean` | `false` | Always show max decimal places |
@@ -282,55 +277,68 @@ State management hook. Returns `NumberFieldState`.
 
 ### `useNumberField(props, state, inputRef)`
 
-Behavior hook. Returns `NumberFieldAria` (prop objects for each element).
+Behavior hook — returns `NumberFieldAria` prop objects for each element.
 
 Additional props beyond state options:
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `allowMouseWheel` | `boolean` | `false` | Wheel to increment/decrement |
+| `allowMouseWheel` | `boolean` | `false` | Mouse wheel to increment/decrement |
 | `copyBehavior` | `"formatted" \| "raw" \| "number"` | `"formatted"` | Clipboard content on copy |
-| `stepHoldDelay` | `number` | `400` | Press-and-hold delay (ms) |
-| `stepHoldInterval` | `number` | `200` | Initial repeat interval (ms) |
+| `stepHoldDelay` | `number` | `400` | Press-and-hold initial delay (ms) |
+| `stepHoldInterval` | `number` | `200` | Press-and-hold repeat interval (ms) |
 | `formatValue` | `(value: number) => string` | — | Custom format function |
 | `parseValue` | `(input: string) => ParseResult` | — | Custom parse function |
 
+### `NumberField.Root` extra props
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `onValueChange` | `(value, { reason, formattedValue }) => void` | Fires with change reason |
+| `onValueCommitted` | `(value, { reason }) => void` | Fires only on blur/Enter |
+
 ### `useNumberFieldFormat(value, options)`
 
-Display-only formatting hook. Returns a formatted string. Zero state overhead.
+Display-only formatting hook. Returns a formatted string. Zero state overhead — safe in RSC via `numra/server`.
 
-### `NumberField.*` Components
+### `NumberField.*` components
 
 | Component | Description |
 |-----------|-------------|
-| `Root` | Context provider, state orchestration |
-| `Label` | `<label>` with correct `htmlFor` |
+| `Root` | Context provider + state orchestration |
+| `Label` | `<label>` with correct `htmlFor` wiring |
 | `Group` | `<div role="group">` for input + buttons |
-| `Input` | `<input type="text" role="spinbutton">` |
-| `Increment` | Increment button with press-and-hold |
-| `Decrement` | Decrement button with press-and-hold |
-| `HiddenInput` | Hidden `<input>` for FormData |
-| `ScrubArea` | Drag-to-increment via Pointer Lock API |
-| `ScrubAreaCursor` | Custom cursor during pointer lock |
-| `Description` | Help text linked via aria-describedby |
+| `Input` | `<input type="text" role="spinbutton">` with live formatting |
+| `Increment` | Increment button with press-and-hold acceleration |
+| `Decrement` | Decrement button with press-and-hold acceleration |
+| `HiddenInput` | Hidden `<input>` for native FormData submission |
+| `ScrubArea` | Pointer Lock drag-to-adjust area |
+| `ScrubAreaCursor` | Custom cursor rendered during pointer lock |
+| `Description` | Help text linked via `aria-describedby` |
 | `ErrorMessage` | Error display with `role="alert"` |
-| `Formatted` | Read-only formatted value display |
+| `Formatted` | Read-only formatted value display span |
 
 Every component accepts a `render` prop for element replacement:
+
 ```tsx
 <NumberField.Increment render={<MyIconButton />}>▲</NumberField.Increment>
-// or
-<NumberField.Increment render={(props, state) => <MyBtn disabled={!state.canIncrement} {...props} />} />
+// or with state access:
+<NumberField.Increment render={(props, state) => (
+  <MyBtn disabled={!state.canIncrement} {...props} />
+)} />
 ```
 
-## Bundle size
+## 📦 Bundle size
 
-| Entry | Gzipped |
-|-------|---------|
-| `numra/core` | < 2 KB |
-| `numra` (hooks + components) | < 12 KB |
-| `numra/locales/fa` | < 0.3 KB |
+Actual sizes (brotli compressed):
 
-## License
+| Entry | Size |
+|-------|------|
+| `numra/core` | ~1.7 KB |
+| `numra` (hooks + components) | ~7 KB |
+| `numra/react` | ~6.8 KB |
+| `numra/locales/fa` | ~200 B |
+
+## 📄 License
 
 [MIT](LICENSE)
