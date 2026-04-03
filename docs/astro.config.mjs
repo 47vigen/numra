@@ -3,7 +3,7 @@ import starlight from "@astrojs/starlight";
 
 export default defineConfig({
   site: "https://47vigen.github.io",
-  base: "/numra",
+  base: "/raqam",
   integrations: [
     starlight({
       title: "raqam",
@@ -13,7 +13,7 @@ export default defineConfig({
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/47vigen/numra",
+          href: "https://github.com/47vigen/raqam",
         },
       ],
       sidebar: [

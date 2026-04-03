@@ -4,7 +4,7 @@
 
 ```bash
 # Clone and install
-git clone https://github.com/47vigen/numra.git
+git clone https://github.com/47vigen/raqam.git
 cd raqam
 pnpm install
 

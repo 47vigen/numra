@@ -9,13 +9,13 @@
   "types": "./dist/index.d.ts",
   "author": "47vigen",
   "license": "MIT",
-  "homepage": "https://47vigen.github.io/numra",
+  "homepage": "https://47vigen.github.io/raqam",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/47vigen/numra.git"
+    "url": "https://github.com/47vigen/raqam"
   },
   "bugs": {
-    "url": "https://github.com/47vigen/numra/issues"
+    "url": "https://github.com/47vigen/raqam/issues"
   },
   "publishConfig": {
     "access": "public",

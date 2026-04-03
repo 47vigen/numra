@@ -4,7 +4,7 @@
 
 [![npm version](https://img.shields.io/npm/v/raqam)](https://www.npmjs.com/package/raqam)
 [![bundle size](https://img.shields.io/bundlephobia/minzip/raqam)](https://bundlephobia.com/package/raqam)
-[![CI](https://img.shields.io/github/actions/workflow/status/47vigen/numra/ci.yml?label=CI)](https://github.com/47vigen/numra/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/47vigen/raqam/ci.yml?label=CI)](https://github.com/47vigen/raqam/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)](https://www.typescriptlang.org/)
 [![license](https://img.shields.io/npm/l/raqam)](LICENSE)
 
