@@ -4,6 +4,7 @@ description: Install raqam and build your first number field in under five minut
 ---
 
 import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
+import { LiveNumberFieldDemo } from "../../components/demos/LiveNumberFieldDemo.tsx";
 
 ## Installation
 
@@ -29,6 +30,8 @@ import { Tabs, TabItem, Aside } from "@astrojs/starlight/components";
 
 ## Your first field
 
+<LiveNumberFieldDemo variant="quantity" client:visible />
+
 ### Component API (recommended)
 
 ```tsx
@@ -47,6 +50,7 @@ export function QuantityInput() {
   );
 }
 ```
+
 
 ### Hook API (maximum control)
 
