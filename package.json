@@ -114,7 +114,7 @@
     "test:e2e:ui": "playwright test -c playwright-ct.config.ts --ui",
     "test:e2e:debug": "playwright test -c playwright-ct.config.ts --headed --project=chromium",
     "docs:dev": "cd docs && pnpm astro dev",
-    "docs:build": "cd docs && pnpm astro build",
+    "docs:build": "pnpm build && cd docs && pnpm astro build",
     "release:beta": "changeset version --snapshot beta && changeset publish --tag beta"
   },
   "keywords": [

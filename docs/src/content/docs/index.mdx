@@ -1,20 +1,25 @@
 ---
-title: raqam
+title: 🔢 Raqam
 description: The definitive React number input — live formatting, full i18n, headless, accessible
 template: splash
 hero:
   tagline: Live formatting • Full i18n • Headless • Accessible • < 5 KB
   actions:
     - text: Get Started
-      link: getting-started
+      link: /raqam/getting-started
       icon: right-arrow
       variant: primary
+    - text: Playground
+      link: /raqam/playground
+      icon: laptop
+      variant: minimal
     - text: View on GitHub
       link: https://github.com/47vigen/raqam
       icon: external
+      variant: minimal
 ---
 
-import { Card, CardGrid } from "@astrojs/starlight/components";
+import { Card, CardGrid } from "@astrojs/starlight/components"
 
 ## Why raqam?
 
@@ -52,7 +57,7 @@ yarn add raqam
 ## Thirty-second example
 
 ```tsx
-import { NumberField } from "raqam";
+import { NumberField } from "raqam"
 
 export function PriceInput() {
   return (
@@ -70,7 +75,7 @@ export function PriceInput() {
       </NumberField.Group>
       <NumberField.HiddenInput name="price" />
     </NumberField.Root>
-  );
+  )
 }
 ```
 
@@ -78,9 +83,9 @@ Type `1234` → see `$1,234.00`. Type `1234.5` → see `$1,234.5` (live, no flic
 
 ## Bundle size
 
-| Import | Gzipped |
-|--------|---------|
-| `raqam/core` | < 2 KB |
-| `raqam` (full) | < 9 KB |
+| Import             | Gzipped  |
+| ------------------ | -------- |
+| `raqam/core`       | < 2 KB   |
+| `raqam` (full)     | < 9 KB   |
 | `raqam/locales/fa` | < 0.3 KB |
 | `raqam/locales/ar` | < 0.3 KB |
