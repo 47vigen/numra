@@ -299,18 +299,24 @@ test.describe("Keyboard interactions", () => {
 });
 
 // ── Paste ─────────────────────────────────────────────────────────────────────
+//
+// Firefox does not allow DataTransfer.setData() outside native event handlers,
+// so we mock clipboardData.getData directly on the event object instead.
+// This is cross-browser safe and matches what React's onPaste handler reads.
 
 test.describe("Paste", () => {
   test("pastes plain number string", async ({ mount }) => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
     await input.click();
-    // Dispatch paste event directly on the element (works inside CT iframe)
-    await input.evaluate((el: HTMLInputElement) => {
-      const dt = new DataTransfer();
-      dt.setData("text/plain", "1234.56");
-      el.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true }));
-    });
+    await input.evaluate((el, text) => {
+      const event = new ClipboardEvent("paste", { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "clipboardData", {
+        value: { getData: (fmt: string) => (fmt === "text/plain" ? text : "") },
+        configurable: true,
+      });
+      el.dispatchEvent(event);
+    }, "1234.56");
     expect(await input.getAttribute("aria-valuenow")).toBe("1234.56");
   });
 
@@ -318,11 +324,14 @@ test.describe("Paste", () => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
     await input.click();
-    await input.evaluate((el: HTMLInputElement) => {
-      const dt = new DataTransfer();
-      dt.setData("text/plain", "$1,234.56");
-      el.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true }));
-    });
+    await input.evaluate((el, text) => {
+      const event = new ClipboardEvent("paste", { bubbles: true, cancelable: true });
+      Object.defineProperty(event, "clipboardData", {
+        value: { getData: (fmt: string) => (fmt === "text/plain" ? text : "") },
+        configurable: true,
+      });
+      el.dispatchEvent(event);
+    }, "$1,234.56");
     expect(await input.getAttribute("aria-valuenow")).toBe("1234.56");
   });
 });
