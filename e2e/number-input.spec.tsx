@@ -13,9 +13,13 @@
  *
  * Notes:
  * - Paste behavior is tested in NumberField.interactions.test.tsx (RTL)
- * - Compact notation text assertions use toContain() to tolerate Unicode
+ * - All assertions use Playwright's auto-retrying locator assertions
+ *   (expect(locator).toHaveValue / toHaveAttribute) to tolerate React's
+ *   async state updates, which can be slightly slower in Firefox than
+ *   Chromium/WebKit.
+ * - Compact notation text assertions use regex to tolerate Unicode
  *   spacing differences between browser ICU versions (e.g. narrow no-break
- *   space in some Firefox builds)
+ *   space in some Firefox builds).
  */
 
 import { test, expect } from "@playwright/experimental-ct-react";
@@ -28,22 +32,22 @@ test.describe("defaultValue — uncontrolled initialization", () => {
   test("shows formatted integer on mount", async ({ mount }) => {
     const component = await mount(<NumberInputField defaultValue={23456} />);
     const input = component.getByTestId("input");
-    expect(await input.inputValue()).toBe("23,456");
-    expect(await input.getAttribute("aria-valuenow")).toBe("23456");
+    await expect(input).toHaveValue("23,456");
+    await expect(input).toHaveAttribute("aria-valuenow", "23456");
   });
 
   test("shows formatted decimal on mount", async ({ mount }) => {
     const component = await mount(<NumberInputField defaultValue={23.58} />);
     const input = component.getByTestId("input");
-    expect(await input.inputValue()).toBe("23.58");
-    expect(await input.getAttribute("aria-valuenow")).toBe("23.58");
+    await expect(input).toHaveValue("23.58");
+    await expect(input).toHaveAttribute("aria-valuenow", "23.58");
   });
 
   test("shows formatted negative on mount", async ({ mount }) => {
     const component = await mount(<NumberInputField defaultValue={-5} />);
     const input = component.getByTestId("input");
-    expect(await input.inputValue()).toBe("-5");
-    expect(await input.getAttribute("aria-valuenow")).toBe("-5");
+    await expect(input).toHaveValue("-5");
+    await expect(input).toHaveAttribute("aria-valuenow", "-5");
   });
 
   test("shows compact notation on mount", async ({ mount }) => {
@@ -54,17 +58,17 @@ test.describe("defaultValue — uncontrolled initialization", () => {
       />
     );
     const input = component.getByTestId("input");
-    // Use toContain + aria-valuenow to tolerate Unicode space variants across
-    // browser ICU versions (e.g. Firefox may emit "1.5\u202fK")
-    expect(await input.inputValue()).toMatch(/1[.,]?5\s*K/i);
-    expect(await input.getAttribute("aria-valuenow")).toBe("1500");
+    // Use regex to tolerate Unicode space variants across browser ICU versions
+    // (e.g. Firefox may emit "1.5\u202fK")
+    await expect(input).toHaveValue(/1[.,]?5\s*K/i);
+    await expect(input).toHaveAttribute("aria-valuenow", "1500");
   });
 
   test("shows empty when no defaultValue", async ({ mount }) => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
-    expect(await input.inputValue()).toBe("");
-    expect(await input.getAttribute("aria-valuenow")).toBeNull();
+    await expect(input).toHaveValue("");
+    await expect(input).not.toHaveAttribute("aria-valuenow");
   });
 });
 
@@ -75,29 +79,29 @@ test.describe("Typing decimals", () => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
     await input.click();
-    await input.pressSequentially("23.58");
-    expect(await input.inputValue()).toBe("23.58");
-    expect(await input.getAttribute("aria-valuenow")).toBe("23.58");
+    await input.pressSequentially("23.58", { delay: 50 });
+    await expect(input).toHaveValue("23.58");
+    await expect(input).toHaveAttribute("aria-valuenow", "23.58");
   });
 
   test("preserves intermediate '23.' without reformatting", async ({ mount }) => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
     await input.click();
-    await input.pressSequentially("23.");
-    expect(await input.inputValue()).toBe("23.");
+    await input.pressSequentially("23.", { delay: 50 });
+    await expect(input).toHaveValue("23.");
     // Intermediate — no valuenow
-    expect(await input.getAttribute("aria-valuenow")).toBeNull();
+    await expect(input).not.toHaveAttribute("aria-valuenow");
   });
 
   test("blur on intermediate '23.' clears the field", async ({ mount }) => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
     await input.click();
-    await input.pressSequentially("23.");
+    await input.pressSequentially("23.", { delay: 50 });
     await input.press("Tab"); // trigger blur
-    expect(await input.inputValue()).toBe("");
-    expect(await input.getAttribute("aria-valuenow")).toBeNull();
+    await expect(input).toHaveValue("");
+    await expect(input).not.toHaveAttribute("aria-valuenow");
   });
 
   test("types decimal on field containing a value", async ({ mount }) => {
@@ -105,8 +109,8 @@ test.describe("Typing decimals", () => {
     const input = component.getByTestId("input");
     // Use fill() to reliably clear+replace across all browsers
     await input.fill("");
-    await input.pressSequentially("99.99");
-    expect(await input.getAttribute("aria-valuenow")).toBe("99.99");
+    await input.pressSequentially("99.99", { delay: 50 });
+    await expect(input).toHaveAttribute("aria-valuenow", "99.99");
   });
 });
 
@@ -117,34 +121,34 @@ test.describe("Typing negative numbers", () => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
     await input.click();
-    await input.pressSequentially("-");
-    expect(await input.getAttribute("aria-valuenow")).toBeNull();
+    await input.pressSequentially("-", { delay: 50 });
+    await expect(input).not.toHaveAttribute("aria-valuenow");
   });
 
   test("types -5", async ({ mount }) => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
     await input.click();
-    await input.pressSequentially("-5");
-    expect(await input.inputValue()).toBe("-5");
-    expect(await input.getAttribute("aria-valuenow")).toBe("-5");
+    await input.pressSequentially("-5", { delay: 50 });
+    await expect(input).toHaveValue("-5");
+    await expect(input).toHaveAttribute("aria-valuenow", "-5");
   });
 
   test("types -23.58", async ({ mount }) => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
     await input.click();
-    await input.pressSequentially("-23.58");
-    expect(await input.inputValue()).toBe("-23.58");
-    expect(await input.getAttribute("aria-valuenow")).toBe("-23.58");
+    await input.pressSequentially("-23.58", { delay: 50 });
+    await expect(input).toHaveValue("-23.58");
+    await expect(input).toHaveAttribute("aria-valuenow", "-23.58");
   });
 
   test("replaces positive value with negative", async ({ mount }) => {
     const component = await mount(<NumberInputField defaultValue={100} />);
     const input = component.getByTestId("input");
     await input.fill("");
-    await input.pressSequentially("-5");
-    expect(await input.getAttribute("aria-valuenow")).toBe("-5");
+    await input.pressSequentially("-5", { delay: 50 });
+    await expect(input).toHaveAttribute("aria-valuenow", "-5");
   });
 });
 
@@ -156,8 +160,8 @@ test.describe("Compact notation", () => {
       <NumberInputField defaultValue={1500} formatOptions={{ notation: "compact" }} />
     );
     const input = component.getByTestId("input");
-    expect(await input.inputValue()).toMatch(/K/i);
-    expect(await input.getAttribute("aria-valuenow")).toBe("1500");
+    await expect(input).toHaveValue(/K/i);
+    await expect(input).toHaveAttribute("aria-valuenow", "1500");
   });
 
   test("displays 1_200_000 in M notation", async ({ mount }) => {
@@ -165,8 +169,8 @@ test.describe("Compact notation", () => {
       <NumberInputField defaultValue={1_200_000} formatOptions={{ notation: "compact" }} />
     );
     const input = component.getByTestId("input");
-    expect(await input.inputValue()).toMatch(/M/i);
-    expect(await input.getAttribute("aria-valuenow")).toBe("1200000");
+    await expect(input).toHaveValue(/M/i);
+    await expect(input).toHaveAttribute("aria-valuenow", "1200000");
   });
 
   test("increment button updates value", async ({ mount }) => {
@@ -180,8 +184,8 @@ test.describe("Compact notation", () => {
     const increment = component.getByTestId("increment");
     await increment.click();
     const input = component.getByTestId("input");
-    expect(await input.getAttribute("aria-valuenow")).toBe("2000");
-    expect(await input.inputValue()).toMatch(/K/i);
+    await expect(input).toHaveAttribute("aria-valuenow", "2000");
+    await expect(input).toHaveValue(/K/i);
   });
 
   test("decrement button updates value", async ({ mount }) => {
@@ -195,8 +199,8 @@ test.describe("Compact notation", () => {
     const decrement = component.getByTestId("decrement");
     await decrement.click();
     const input = component.getByTestId("input");
-    expect(await input.getAttribute("aria-valuenow")).toBe("1500");
-    expect(await input.inputValue()).toMatch(/K/i);
+    await expect(input).toHaveAttribute("aria-valuenow", "1500");
+    await expect(input).toHaveValue(/K/i);
   });
 });
 
@@ -207,33 +211,33 @@ test.describe("Reset field then retype", () => {
     const component = await mount(<NumberInputField defaultValue={42} />);
     const input = component.getByTestId("input");
     await input.fill("");
-    expect(await input.inputValue()).toBe("");
-    expect(await input.getAttribute("aria-valuenow")).toBeNull();
+    await expect(input).toHaveValue("");
+    await expect(input).not.toHaveAttribute("aria-valuenow");
   });
 
   test("clears then types integer 100", async ({ mount }) => {
     const component = await mount(<NumberInputField defaultValue={42} />);
     const input = component.getByTestId("input");
     await input.fill("");
-    await input.pressSequentially("100");
-    expect(await input.getAttribute("aria-valuenow")).toBe("100");
+    await input.pressSequentially("100", { delay: 50 });
+    await expect(input).toHaveAttribute("aria-valuenow", "100");
   });
 
   test("clears then types decimal 23.58", async ({ mount }) => {
     const component = await mount(<NumberInputField defaultValue={42} />);
     const input = component.getByTestId("input");
     await input.fill("");
-    await input.pressSequentially("23.58");
-    expect(await input.inputValue()).toBe("23.58");
-    expect(await input.getAttribute("aria-valuenow")).toBe("23.58");
+    await input.pressSequentially("23.58", { delay: 50 });
+    await expect(input).toHaveValue("23.58");
+    await expect(input).toHaveAttribute("aria-valuenow", "23.58");
   });
 
   test("clears then types negative -5", async ({ mount }) => {
     const component = await mount(<NumberInputField defaultValue={42} />);
     const input = component.getByTestId("input");
     await input.fill("");
-    await input.pressSequentially("-5");
-    expect(await input.getAttribute("aria-valuenow")).toBe("-5");
+    await input.pressSequentially("-5", { delay: 50 });
+    await expect(input).toHaveAttribute("aria-valuenow", "-5");
   });
 });
 
@@ -245,7 +249,7 @@ test.describe("Keyboard interactions", () => {
     const input = component.getByTestId("input");
     await input.click();
     await input.press("ArrowUp");
-    expect(await input.getAttribute("aria-valuenow")).toBe("11");
+    await expect(input).toHaveAttribute("aria-valuenow", "11");
   });
 
   test("ArrowDown decrements by step", async ({ mount }) => {
@@ -253,7 +257,7 @@ test.describe("Keyboard interactions", () => {
     const input = component.getByTestId("input");
     await input.click();
     await input.press("ArrowDown");
-    expect(await input.getAttribute("aria-valuenow")).toBe("9");
+    await expect(input).toHaveAttribute("aria-valuenow", "9");
   });
 
   test("Shift+ArrowUp increments by largeStep", async ({ mount }) => {
@@ -263,7 +267,7 @@ test.describe("Keyboard interactions", () => {
     const input = component.getByTestId("input");
     await input.click();
     await input.press("Shift+ArrowUp");
-    expect(await input.getAttribute("aria-valuenow")).toBe("10");
+    await expect(input).toHaveAttribute("aria-valuenow", "10");
   });
 
   test("Shift+ArrowDown decrements by largeStep", async ({ mount }) => {
@@ -273,26 +277,26 @@ test.describe("Keyboard interactions", () => {
     const input = component.getByTestId("input");
     await input.click();
     await input.press("Shift+ArrowDown");
-    expect(await input.getAttribute("aria-valuenow")).toBe("90");
+    await expect(input).toHaveAttribute("aria-valuenow", "90");
   });
 
   test("blur reformats intermediate '23.' to empty", async ({ mount }) => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
     await input.click();
-    await input.pressSequentially("23.");
+    await input.pressSequentially("23.", { delay: 50 });
     await input.press("Tab"); // blur
-    expect(await input.inputValue()).toBe("");
-    expect(await input.getAttribute("aria-valuenow")).toBeNull();
+    await expect(input).toHaveValue("");
+    await expect(input).not.toHaveAttribute("aria-valuenow");
   });
 
   test("blur reformats valid number with grouping", async ({ mount }) => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
     await input.click();
-    await input.pressSequentially("1234");
+    await input.pressSequentially("1234", { delay: 50 });
     await input.press("Tab"); // blur triggers commit
-    expect(await input.inputValue()).toBe("1,234");
+    await expect(input).toHaveValue("1,234");
   });
 });
 
