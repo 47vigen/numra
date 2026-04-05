@@ -21,8 +21,8 @@ import { NumberInputField } from "./components/number-input-field";
 
 test.describe("defaultValue — uncontrolled initialization", () => {
   test("shows formatted integer on mount", async ({ mount }) => {
-    await mount(<NumberInputField defaultValue={23456} />);
-    const input = await (await mount(<NumberInputField defaultValue={23456} />)).getByTestId("input");
+    const component = await mount(<NumberInputField defaultValue={23456} />);
+    const input = component.getByTestId("input");
     expect(await input.inputValue()).toBe("23,456");
     expect(await input.getAttribute("aria-valuenow")).toBe("23456");
   });
@@ -83,7 +83,7 @@ test.describe("Typing decimals", () => {
     expect(await input.getAttribute("aria-valuenow")).toBeNull();
   });
 
-  test("blur on intermediate '23.' clears the field", async ({ mount, page }) => {
+  test("blur on intermediate '23.' clears the field", async ({ mount }) => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
     await input.click();
@@ -301,12 +301,12 @@ test.describe("Keyboard interactions", () => {
 // ── Paste ─────────────────────────────────────────────────────────────────────
 
 test.describe("Paste", () => {
-  test("pastes plain number string", async ({ mount, page }) => {
+  test("pastes plain number string", async ({ mount }) => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
     await input.click();
-    await page.evaluate(() => {
-      const el = document.querySelector('[data-testid="input"]') as HTMLInputElement;
+    // Dispatch paste event directly on the element (works inside CT iframe)
+    await input.evaluate((el: HTMLInputElement) => {
       const dt = new DataTransfer();
       dt.setData("text/plain", "1234.56");
       el.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true }));
@@ -314,12 +314,11 @@ test.describe("Paste", () => {
     expect(await input.getAttribute("aria-valuenow")).toBe("1234.56");
   });
 
-  test("strips currency symbol when pasting", async ({ mount, page }) => {
+  test("strips currency symbol when pasting", async ({ mount }) => {
     const component = await mount(<NumberInputField />);
     const input = component.getByTestId("input");
     await input.click();
-    await page.evaluate(() => {
-      const el = document.querySelector('[data-testid="input"]') as HTMLInputElement;
+    await input.evaluate((el: HTMLInputElement) => {
       const dt = new DataTransfer();
       dt.setData("text/plain", "$1,234.56");
       el.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true }));
