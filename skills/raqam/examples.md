@@ -21,6 +21,25 @@ export function QuantityInput() {
 }
 ```
 
+## Native form submission (best practice)
+
+```tsx
+import { NumberField } from "raqam";
+
+export function CheckoutPrice() {
+  return (
+    <NumberField.Root locale="en-US" name="price" defaultValue={9.99}>
+      <NumberField.Label>Price</NumberField.Label>
+      <NumberField.Input />
+      <NumberField.HiddenInput />
+    </NumberField.Root>
+  );
+}
+```
+
+Put `name` on `NumberField.Root`; `HiddenInput` reads that hidden-input wiring
+from the root state.
+
 ## Currency + presets
 
 ```tsx
@@ -106,6 +125,23 @@ const formatter = createFormatter({
 const displayPrice = formatter.format(1234.56);
 ```
 
+## Change metadata / analytics
+
+```tsx
+<NumberField.Root
+  locale="en-US"
+  defaultValue={100}
+  onValueChange={(value, { reason, formattedValue }) => {
+    analytics.track("amount_changed", { value, reason, formattedValue });
+  }}
+>
+  <NumberField.Input />
+</NumberField.Root>
+```
+
+Use `onValueChange` when the calling app needs to know whether the change came
+from typing, paste, wheel, increment/decrement, blur, or scrubbing.
+
 ## react-hook-form (Controller)
 
 Full recipe: [https://47vigen.github.io/raqam/recipes/react-hook-form/](https://47vigen.github.io/raqam/recipes/react-hook-form/)
@@ -135,7 +171,10 @@ Sketch:
 
 ## CSS hooks (data attributes)
 
-Style using attributes on `NumberField.Root`, for example `data-focused`, `data-invalid`, `data-disabled`, `data-readonly`, `data-rtl`, `data-scrubbing`. See README and [components](https://47vigen.github.io/raqam/api/components/).
+Style the root with `data-focused`, `data-invalid`, `data-disabled`,
+`data-readonly`, `data-required`, and `data-scrubbing`. For RTL-specific input
+styling, target `input[data-rtl]`. See README and
+[components](https://47vigen.github.io/raqam/api/components/).
 
 ## More recipes (external)
 

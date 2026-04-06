@@ -254,8 +254,8 @@ State management hook — returns `NumberFieldState`.
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `value` | `number \| null` | — | Controlled value |
-| `defaultValue` | `number` | — | Uncontrolled default |
-| `onChange` | `(value: number \| null) => void` | — | Fires on every change |
+| `defaultValue` | `number \| null` | — | Uncontrolled default |
+| `onChange` | `(value: number \| null) => void` | — | Fires whenever the parsed numeric value changes |
 | `onRawChange` | `(raw: string \| null) => void` | — | Fires with raw unformatted string |
 | `locale` | `string` | browser | BCP 47 locale tag |
 | `formatOptions` | `Intl.NumberFormatOptions` | `{}` | Full Intl options |
@@ -288,14 +288,13 @@ Additional props beyond state options:
 | `stepHoldDelay` | `number` | `400` | Press-and-hold initial delay (ms) |
 | `stepHoldInterval` | `number` | `200` | Press-and-hold repeat interval (ms) |
 | `formatValue` | `(value: number) => string` | — | Custom format function |
-| `parseValue` | `(input: string) => ParseResult` | — | Custom parse function |
+| `parseValue` | `(input: string) => { value: number \| null; isIntermediate: boolean }` | — | Custom parse function |
 
 ### `NumberField.Root` extra props
 
 | Prop | Type | Description |
 |------|------|-------------|
 | `onValueChange` | `(value, { reason, formattedValue }) => void` | Fires with change reason |
-| `onValueCommitted` | `(value, { reason }) => void` | Fires only on blur/Enter |
 
 ### `useNumberFieldFormat(value, options)`
 

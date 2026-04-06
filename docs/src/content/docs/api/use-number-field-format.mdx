@@ -23,6 +23,11 @@ function useNumberFieldFormat(
   options: {
     locale?: string;
     formatOptions?: Intl.NumberFormatOptions;
+    prefix?: string;
+    suffix?: string;
+    minimumFractionDigits?: number;
+    maximumFractionDigits?: number;
+    fixedDecimalScale?: boolean;
   }
 ): string;
 ```
@@ -32,8 +37,11 @@ function useNumberFieldFormat(
 | Param | Type | Description |
 |-------|------|-------------|
 | `value` | `number \| null \| undefined` | The value to format. Returns `""` for null/undefined. |
-| `options.locale` | `string` | BCP 47 locale (default `"en-US"`). |
+| `options.locale` | `string` | BCP 47 locale. Defaults to the current runtime locale. |
 | `options.formatOptions` | `Intl.NumberFormatOptions` | Passed to `Intl.NumberFormat`. |
+| `options.prefix` / `options.suffix` | `string` | Add custom affixes around the formatted value. |
+| `options.minimumFractionDigits` / `options.maximumFractionDigits` | `number` | Override fraction digit behavior. |
+| `options.fixedDecimalScale` | `boolean` | Forces `maximumFractionDigits` trailing zeros. |
 
 ## Return value
 

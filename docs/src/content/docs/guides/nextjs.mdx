@@ -120,13 +120,14 @@ export function CheckoutForm({
       <p>Original price: {formattedPrice}</p>
       <NumberField.Root
         locale="en-US"
+        name="price"
         formatOptions={{ style: "currency", currency: "USD" }}
         value={price}
         onChange={setPrice}
       >
         <NumberField.Label>Custom price</NumberField.Label>
         <NumberField.Input />
-        <NumberField.HiddenInput name="price" />
+        <NumberField.HiddenInput />
       </NumberField.Root>
       <button type="submit">Checkout</button>
     </form>

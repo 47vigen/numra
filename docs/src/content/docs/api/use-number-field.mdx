@@ -36,6 +36,8 @@ are also accepted here for convenience) plus:
 | `aria-label` | `string` | Accessible label when no visible label is used. |
 | `aria-labelledby` | `string` | Points to an external label element. |
 | `aria-describedby` | `string` | Points to a description element. |
+| `name` | `string` | Enables `hiddenInputProps` for native form submission. |
+| `allowMouseWheel` | `boolean` | Enables wheel-based increment/decrement. |
 | `copyBehavior` | `"formatted" \| "raw" \| "number"` | What goes to the clipboard on Copy/Cut. Default `"formatted"`. |
 
 All other props from `UseNumberFieldStateOptions` (`minValue`, `maxValue`,
@@ -51,7 +53,6 @@ All other props from `UseNumberFieldStateOptions` (`minValue`, `maxValue`,
 | `incrementButtonProps` | increment `<button>` | `aria-label`, `disabled`, press-and-hold. |
 | `decrementButtonProps` | decrement `<button>` | `aria-label`, `disabled`, press-and-hold. |
 | `hiddenInputProps` | `<input type="hidden">` | `value` = the raw number for form submission. |
-| `formattedProps` | `<span>` etc. | Renders the current formatted value as text. |
 | `descriptionProps` | description `<p>` | `id` for `aria-describedby` wiring. |
 | `errorMessageProps` | error `<p>` | `role="alert"`, shown when invalid. |
 
@@ -70,6 +71,10 @@ All other props from `UseNumberFieldStateOptions` (`minValue`, `maxValue`,
 | Enter | Commit current value |
 | Backspace | Smart deletion (skips over grouping separators) |
 
+The returned `inputProps` also include `data-rtl`, `data-invalid`,
+`data-disabled`, `data-readonly`, and `data-required` attributes so you can
+style state directly in CSS.
+
 ## Mouse wheel
 
 The wheel handler uses a **non-passive** event listener (bypassing React's
@@ -80,8 +85,8 @@ passive-by-default `onWheel`) so `preventDefault()` can stop page scroll.
 | `copyBehavior` | Copy produces |
 |----------------|--------------|
 | `"formatted"` (default) | Browser default — the selected text |
-| `"raw"` | The user's raw input string |
-| `"number"` | `String(numberValue)` — always ASCII digits |
+| `"raw"` | `String(numberValue)` — plain ASCII digits |
+| `"number"` | Alias of `"raw"` |
 
 ## Example
 

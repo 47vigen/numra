@@ -55,15 +55,35 @@ Bundle sizes and export map: see README and [Getting Started](https://47vigen.gi
 - [useNumberFieldState](https://47vigen.github.io/raqam/api/use-number-field-state/) — state machine (`inputValue`, `numberValue`, `rawValue`, validation, scrubbing).
 - [useNumberField](https://47vigen.github.io/raqam/api/use-number-field/) — ARIA props + handlers; requires `inputRef` to the `<input>`.
 
+**Lower-level helpers** — only when building custom primitives or non-React formatting:
+
+- [Core utilities](https://47vigen.github.io/raqam/api/core-utilities/) — `createFormatter`, `createParser`, `normalizeDigits`, `registerLocale`, caret helpers.
+- [Advanced primitives](https://47vigen.github.io/raqam/api/advanced-primitives/) — `useControllableState`, `usePressAndHold`, `useScrubArea`, `NumberFieldContext`, `useNumberFieldContext`.
+
+## Recommended agent path
+
+Use the simplest path that fits the user’s request:
+
+1. **Default:** `NumberField.Root` + compound components.
+2. **Need custom DOM or design-system wrappers:** `useNumberFieldState` + `useNumberField`.
+3. **Need display-only formatting in React:** `useNumberFieldFormat`.
+4. **Need formatting/parsing in RSC, SSR, Edge, or non-React code:** `raqam/server` / `raqam/core`.
+5. **Need non-Latin digit input:** import only the needed locale plugin (`raqam/locales/fa`, etc.).
+6. **Need analytics/change metadata:** use `onValueChange`, not raw `onChange`.
+7. **Need arbitrary-precision finance flows:** use `onRawChange` / `state.rawValue`, or custom `parseValue` / `formatValue`.
+
+Avoid steering users toward undocumented or stale APIs when a documented path already exists.
+
 ## Behavior essentials
 
 - **`locale`:** BCP 47 tag; drives `Intl.NumberFormat` / parsing.
 - **`formatOptions`:** standard `Intl.NumberFormatOptions`; use **`presets`** for common cases — [Format presets](https://47vigen.github.io/raqam/api/presets/).
-- **Controlled vs uncontrolled:** `value`/`onChange` vs `defaultValue`. `onChange` fires on **commit** (blur, Enter, steppers), not every keystroke — see [Getting Started](https://47vigen.github.io/raqam/getting-started/).
+- **Controlled vs uncontrolled:** `value`/`onChange` vs `defaultValue`. `onChange` fires whenever the parsed numeric value changes; use `onValueChange` when you need `{ reason, formattedValue }` metadata — see [Getting Started](https://47vigen.github.io/raqam/getting-started/).
 - **Constraints:** `minValue`, `maxValue`, `step`, `largeStep`, `smallStep`, `clampBehavior`, `allowOutOfRange`, `allowNegative`, `allowDecimal`, `fixedDecimalScale`.
 - **Validation:** `validate` returning `true` / error string; pairs with `NumberField.ErrorMessage`.
 - **Precision / finance:** `onRawChange` and `state.rawValue` for exact string before float conversion; optional custom `formatValue` / `parseValue`.
 - **Display-only:** [useNumberFieldFormat](https://47vigen.github.io/raqam/api/use-number-field-format/) on the client; **`createFormatter` from `raqam/server`** on the server.
+- **Forms:** for native form submission, put `name` on `NumberField.Root` and render `NumberField.HiddenInput`.
 
 ## Locales and RTL
 
@@ -85,7 +105,8 @@ Bundle sizes and export map: see README and [Getting Started](https://47vigen.gi
 
 ## Styling and UX
 
-- Root **`data-*` attributes** for CSS (`data-focused`, `data-invalid`, `data-disabled`, `data-readonly`, `data-rtl`, `data-scrubbing`) — see README and components doc.
+- Root **`data-*` attributes** for CSS include `data-focused`, `data-invalid`, `data-disabled`, `data-readonly`, `data-required`, and `data-scrubbing`.
+- The input also exposes **`data-rtl`** for RTL-specific styling.
 - **ScrubArea:** pointer-lock drag to change value — [components doc](https://47vigen.github.io/raqam/api/components/).
 - **`render` prop** on compound parts to swap elements without `asChild`.
 
@@ -115,6 +136,8 @@ Bundle sizes and export map: see README and [Getting Started](https://47vigen.gi
 | NumberField components | [https://47vigen.github.io/raqam/api/components/](https://47vigen.github.io/raqam/api/components/) |
 | useNumberFieldFormat | [https://47vigen.github.io/raqam/api/use-number-field-format/](https://47vigen.github.io/raqam/api/use-number-field-format/) |
 | Format presets | [https://47vigen.github.io/raqam/api/presets/](https://47vigen.github.io/raqam/api/presets/) |
+| Core utilities | [https://47vigen.github.io/raqam/api/core-utilities/](https://47vigen.github.io/raqam/api/core-utilities/) |
+| Advanced primitives | [https://47vigen.github.io/raqam/api/advanced-primitives/](https://47vigen.github.io/raqam/api/advanced-primitives/) |
 | Locales & i18n | [https://47vigen.github.io/raqam/guides/locales/](https://47vigen.github.io/raqam/guides/locales/) |
 | RTL | [https://47vigen.github.io/raqam/guides/rtl/](https://47vigen.github.io/raqam/guides/rtl/) |
 | Next.js | [https://47vigen.github.io/raqam/guides/nextjs/](https://47vigen.github.io/raqam/guides/nextjs/) |

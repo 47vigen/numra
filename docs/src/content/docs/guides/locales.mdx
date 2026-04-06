@@ -66,6 +66,24 @@ import "raqam/locales";   // imports fa, ar, hi, bn, th
 
 Each plugin is only ~100 bytes gzipped.
 
+### Locale metadata exports
+
+If you want to build locale pickers or feature flags, the bundle entrypoint also
+re-exports the supported locale lists:
+
+```ts
+import {
+  FA_LOCALE_CODES,
+  AR_LOCALE_CODES,
+  BN_LOCALE_CODES,
+  HI_LOCALE_CODES,
+  TH_LOCALE_CODES,
+} from "raqam/locales";
+```
+
+These arrays are useful when you want to map a runtime locale to a matching
+plugin without hardcoding the supported tags yourself.
+
 ## Lakh/crore grouping
 
 South Asian locales (`hi-IN`, `bn-BD`, `mr-IN`) use a different grouping

@@ -24,7 +24,12 @@ Use this file for **quick lookup**. Authoritative detail lives in the official d
 
 ## NumberField.Root — extras (summary)
 
-Beyond state options, the component API adds callbacks such as **`onValueChange`** (with reason) and **`onValueCommitted`**. See [components doc](https://47vigen.github.io/raqam/api/components/).
+Beyond state options, the component API adds **`onValueChange`** for
+`{ reason, formattedValue }` metadata. See
+[components doc](https://47vigen.github.io/raqam/api/components/).
+
+For native forms, pair `name` on `NumberField.Root` with
+`NumberField.HiddenInput`.
 
 ## useNumberField — notable props
 
@@ -45,7 +50,33 @@ Full table and `registerLocale` custom digits: [Locales & i18n](https://47vigen.
 
 ## Server / core
 
-`raqam/server` and `raqam/core` expose **`createFormatter`**, **`createParser`**, **`normalizeDigits`**, **`registerLocale`**, **`presets`**. Details: [Next.js guide](https://47vigen.github.io/raqam/guides/nextjs/) and package README.
+`raqam/server` and `raqam/core` expose **`createFormatter`**,
+**`createParser`**, **`normalizeDigits`**, **`registerLocale`**,
+**`getCaretBoundary`**, **`computeNewCursorPosition`**, and **`presets`**.
+Details: [Core utilities](https://47vigen.github.io/raqam/api/core-utilities/)
+and [Next.js guide](https://47vigen.github.io/raqam/guides/nextjs/).
+
+## Advanced primitives
+
+When a developer is building a wrapper library or custom primitive layer, use
+the dedicated lower-level APIs:
+
+- `useControllableState`
+- `usePressAndHold`
+- `useScrubArea`
+- `NumberFieldContext`
+- `useNumberFieldContext`
+
+Reference: [Advanced primitives](https://47vigen.github.io/raqam/api/advanced-primitives/).
+
+## Styling hooks
+
+- Root: `data-focused`, `data-invalid`, `data-disabled`, `data-readonly`,
+  `data-required`, `data-scrubbing`
+- Input: `data-rtl`
+
+Use the root state hooks for general styling and `input[data-rtl]` only for
+RTL-specific input adjustments.
 
 ## Types (TypeScript)
 

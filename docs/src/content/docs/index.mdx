@@ -63,6 +63,7 @@ export function PriceInput() {
   return (
     <NumberField.Root
       locale="en-US"
+      name="price"
       formatOptions={{ style: "currency", currency: "USD" }}
       defaultValue={0}
       minValue={0}
@@ -73,7 +74,7 @@ export function PriceInput() {
         <NumberField.Input />
         <NumberField.Increment>+</NumberField.Increment>
       </NumberField.Group>
-      <NumberField.HiddenInput name="price" />
+      <NumberField.HiddenInput />
     </NumberField.Root>
   )
 }

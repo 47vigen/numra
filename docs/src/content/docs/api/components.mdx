@@ -44,19 +44,22 @@ Context provider. Accepts all `UseNumberFieldStateOptions` props plus:
 
 | Prop | Type | Description |
 |------|------|-------------|
-| `locale` | `string` | BCP 47 locale (required). |
+| `locale` | `string` | BCP 47 locale. Defaults to the current runtime locale. |
 | `formatOptions` | `Intl.NumberFormatOptions` | Number format configuration. |
 | `value` / `defaultValue` | `number \| null` | Controlled/uncontrolled value. |
-| `onChange` | `(v: number \| null) => void` | Called on commit. |
+| `onChange` | `(v: number \| null) => void` | Called whenever the parsed numeric value changes. |
+| `onValueChange` | `(v, details) => void` | Like `onChange`, plus `{ reason, formattedValue }`. |
 | `minValue` / `maxValue` | `number` | Constraints. |
 | `step` / `largeStep` / `smallStep` | `number` | Step sizes. |
 | `validate` | `(v: number \| null) => boolean \| string` | Custom validator. |
 | `disabled` / `readOnly` | `boolean` | Interaction state. |
+| `required` | `boolean` | Marks the field as required. |
 | `allowNegative` / `allowDecimal` | `boolean` | Input constraints. |
 | `prefix` / `suffix` | `string` | Affixes. |
+| `name` | `string` | Generates hidden input props for native form submission. |
+| `allowMouseWheel` | `boolean` | Enable wheel-based increment/decrement. |
 | `copyBehavior` | `"formatted" \| "raw" \| "number"` | Clipboard behaviour. |
 | `allowOutOfRange` | `boolean` | Skip clamping; show `aria-invalid` instead. |
-| `render` | `RenderProp<"div">` | Replace the root `<div>` with another element. |
 
 Data attributes set on the root element:
 
@@ -66,6 +69,12 @@ Data attributes set on the root element:
 | `data-invalid` | Value is invalid |
 | `data-disabled` | `disabled` is `true` |
 | `data-readonly` | `readOnly` is `true` |
+| `data-required` | `required` is `true` |
+| `data-scrubbing` | A scrub interaction is active |
+
+If you only care about commit-time analytics, use `onValueChange` and check the
+`reason` field (`"blur"`, `"keyboard"`, `"increment"`, `"decrement"`, `"wheel"`,
+`"paste"`, `"input"`, `"clear"`, or `"scrub"`).
 
 ---
 
@@ -121,11 +130,11 @@ Wraps any element; dragging over it adjusts the value via Pointer Lock API.
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `direction` | `"horizontal" \| "vertical" \| "both"` | `"horizontal"` | Drag axis. |
-| `pixelsPerStep` | `number` | `10` | Pixels dragged per step. |
-| `render` | `RenderProp<"div">` | — | Custom element. |
+| `pixelSensitivity` | `number` | `4` | Pixels dragged per step. |
+| `render` | `RenderProp` | — | Custom element. |
 
 ```tsx
-<NumberField.ScrubArea direction="horizontal">
+<NumberField.ScrubArea direction="horizontal" pixelSensitivity={2}>
   Drag to adjust
 </NumberField.ScrubArea>
 ```
@@ -136,7 +145,8 @@ Wraps any element; dragging over it adjusts the value via Pointer Lock API.
 
 ## `NumberField.ScrubAreaCursor`
 
-Optional. Renders a custom SVG cursor that appears while scrubbing (using Pointer Lock). Accepts `<div>` props.
+Optional. Renders only while scrubbing so you can show custom visual feedback
+next to the active scrub handle. Accepts `<span>` props.
 
 ```tsx
 <NumberField.ScrubArea>
@@ -198,17 +208,22 @@ Or supply your own content:
 ## `NumberField.HiddenInput`
 
 An `<input type="hidden">` for HTML form submission. Its `value` is always the
-raw number (no formatting).
+raw number (no formatting). To enable it, pass `name` to `NumberField.Root`.
 
 ```tsx
-<NumberField.HiddenInput name="price" />
+<NumberField.Root locale="en-US" name="price">
+  <NumberField.Input />
+  <NumberField.HiddenInput />
+</NumberField.Root>
 ```
 
 ---
 
 ## render prop
 
-Every component accepts a `render` prop for element replacement (no `asChild` peer deps required):
+The visual building blocks (`Label`, `Group`, `Input`, `Increment`,
+`Decrement`, `ScrubArea`, `ScrubAreaCursor`, and `Formatted`) accept a
+`render` prop for element replacement (no `asChild` peer deps required):
 
 ```tsx
 <NumberField.Input

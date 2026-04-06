@@ -105,9 +105,9 @@ const [value, setValue] = useState<number | null>(42);
 </NumberField.Root>
 ```
 
-`onChange` receives `number | null`. It is called only on **commit** events (blur,
-Enter, or stepper buttons) — never on every keystroke, so intermediate states
-like `"1."` don't trigger it.
+`onChange` receives `number | null` whenever the parsed numeric value changes.
+If you need metadata about *how* the change happened, use `onValueChange` on
+`NumberField.Root` for `{ reason, formattedValue }`.
 
 ## Currency formatting
 
@@ -162,7 +162,7 @@ Use `NumberField.HiddenInput` to submit the raw numeric value in an HTML form.
   <NumberField.Root locale="en-US" name="price" defaultValue={9.99}>
     <NumberField.Label>Price</NumberField.Label>
     <NumberField.Input />
-    <NumberField.HiddenInput name="price" />
+    <NumberField.HiddenInput />
   </NumberField.Root>
   <button type="submit">Save</button>
 </form>

@@ -43,7 +43,9 @@ export default defineConfig({
               label: "useNumberFieldFormat",
               link: "/api/use-number-field-format"
             },
-            { label: "Format Presets", link: "/api/presets" }
+            { label: "Format Presets", link: "/api/presets" },
+            { label: "Core Utilities", link: "/api/core-utilities" },
+            { label: "Advanced Primitives", link: "/api/advanced-primitives" }
           ]
         },
         {

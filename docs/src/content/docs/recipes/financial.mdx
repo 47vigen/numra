@@ -155,8 +155,8 @@ Know exactly how the user changed the value — useful for analytics:
 <NumberField.Root
   locale="en-US"
   defaultValue={0}
-  onChange={(value, reason) => {
-    analytics.track("number_changed", { value, reason });
+  onValueChange={(value, { reason, formattedValue }) => {
+    analytics.track("number_changed", { value, reason, formattedValue });
     // reason: "keyboard" | "wheel" | "paste" | "blur" | "increment" | "decrement" | "scrub"
   }}
 >

@@ -33,11 +33,11 @@ function useNumberFieldState(
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `locale` | `string` | `"en-US"` | BCP 47 locale tag. Drives `Intl.NumberFormat`. |
+| `locale` | `string` | runtime default | BCP 47 locale tag. Drives `Intl.NumberFormat`. |
 | `formatOptions` | `Intl.NumberFormatOptions` | `{}` | Passed to `Intl.NumberFormat`. |
 | `value` | `number \| null` | — | Controlled value. |
 | `defaultValue` | `number \| null` | `null` | Uncontrolled initial value. |
-| `onChange` | `(value: number \| null) => void` | — | Called on commit (blur, Enter, stepper). |
+| `onChange` | `(value: number \| null) => void` | — | Called whenever the parsed numeric value changes. |
 
 ### Constraints
 
@@ -123,7 +123,7 @@ function MyInput() {
     locale: "en-US",
     formatOptions: { style: "currency", currency: "USD" },
     minValue: 0,
-    onChange: (value) => console.log("committed:", value),
+    onChange: (value) => console.log("parsed value:", value),
   });
 
   const { labelProps, inputProps } = useNumberField(
@@ -146,3 +146,6 @@ function MyInput() {
   `useNumberFieldState` does NOT read from or write to the DOM. It's a pure
   React state machine. Pair it with `useNumberField` for DOM integration.
 </Aside>
+
+If you need change metadata such as `"increment"` vs `"paste"` vs `"blur"`,
+use `NumberField.Root` with `onValueChange` instead of the raw state hook.
