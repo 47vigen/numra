@@ -65,7 +65,10 @@ export function RaqamSandpack() {
             "/App.tsx": PLAYGROUND_APP_BY_ID[templateId],
             "/styles.css": { code: playgroundStyles(sandpackTheme), hidden: true },
           }}
-          options={{ initMode: "user-visible" }}
+          // The default ~40s bundler timeout can't cold-build a freshly
+          // published version — every attempt dies mid-download, so the cache
+          // never warms and the playground stays broken after each release.
+          options={{ initMode: "user-visible", bundlerTimeOut: 180_000 }}
         >
           {/* SandpackLayout is a bare container — an empty one renders nothing. */}
           <SandpackLayout>
