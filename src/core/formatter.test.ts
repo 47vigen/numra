@@ -26,6 +26,24 @@ describe("createFormatter", () => {
     });
   });
 
+  // formatToParts/formatResult must agree with format(), which renders
+  // non-finite values as nothing rather than "NaN"/"∞".
+  describe("non-finite values", () => {
+    const fmt = createFormatter({ locale: "en-US", prefix: "$", suffix: " USD" });
+
+    for (const value of [NaN, Infinity, -Infinity]) {
+      it(`renders ${value} as empty across format, formatToParts and formatResult`, () => {
+        expect(fmt.format(value)).toBe("");
+        expect(fmt.formatToParts(value)).toEqual([]);
+        expect(fmt.formatResult(value)).toEqual({ formatted: "", parts: [] });
+      });
+    }
+
+    it("still emits affixes for finite values", () => {
+      expect(fmt.formatResult(12).formatted).toBe("$12 USD");
+    });
+  });
+
   describe("format — de-DE", () => {
     const fmt = createFormatter({ locale: "de-DE" });
 
