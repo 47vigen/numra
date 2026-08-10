@@ -15,7 +15,9 @@ export async function GET(
   const page = source.getPage(slug)
   if (!page) notFound()
 
-  const md = (page.data as { _markdown?: string })._markdown ?? ""
+  // `getText("processed")` — reading `page.data._markdown` returns undefined in
+  // fumadocs-mdx 15, which silently served title-only pages.
+  const md = await page.data.getText("processed")
   const body = `# ${page.data.title}\n\n${page.data.description ?? ""}\n\n${md}`.trim()
 
   return new Response(body, {

@@ -5,14 +5,72 @@ description: Teaches the raqam React number-input library — headless NumberFie
 
 # raqam (React number input)
 
+## Start here — this is a complete, working answer
+
+If the request is "build me a number field with raqam", write this. It needs no
+further reading and no network access.
+
+```bash
+npm install raqam   # peer deps: react, react-dom (18 or 19)
+```
+
+```tsx
+import { NumberField } from "raqam";
+
+export function QuantityField() {
+  return (
+    <NumberField.Root locale="en-US" defaultValue={1} minValue={0} maxValue={99}>
+      <NumberField.Label>Quantity</NumberField.Label>
+      <NumberField.Group>
+        <NumberField.Decrement>−</NumberField.Decrement>
+        <NumberField.Input />
+        <NumberField.Increment>+</NumberField.Increment>
+      </NumberField.Group>
+    </NumberField.Root>
+  );
+}
+```
+
+Vary it by changing **`Root`**, never `Input`:
+
+| Want | Change |
+|------|--------|
+| Currency | `formatOptions={{ style: "currency", currency: "USD" }}` |
+| Percent | `formatOptions={{ style: "percent" }}` — stores the fraction (`42%` ⇒ `0.42`) |
+| Persian / Arabic digits | `locale="fa-IR"` **plus** `import "raqam/locales/fa"` |
+| Native `<form>` submit | `name="price"` on `Root` **plus** `<NumberField.HiddenInput />` |
+| Controlled | `value` + `onValueChange` instead of `defaultValue` |
+| Settled value only | `onValueCommitted` (fires on blur/Enter) |
+
+raqam ships **no styles**. Every part forwards `className`, `style` and refs.
+In a Tailwind project, style `Group` for the border and `Input` for the text;
+`Root` exposes `data-focused`, `data-invalid`, `data-disabled`, `data-readonly`,
+`data-required`, `data-scrubbing`, and `Input` exposes `data-rtl`.
+
+Four mistakes to avoid:
+
+1. Putting `locale` / `formatOptions` / `value` / `onChange` on `Input`. They go on `Root`.
+2. Setting `type="number"` on `Input` — it is fixed to `text` + `inputMode="decimal"`, because `type="number"` defeats formatting.
+3. Reordering `Decrement, Input, Increment`. RTL flips them visually on its own.
+4. Expecting a plain `<form>` POST to send the number. The visible input holds the *formatted* string; add `HiddenInput`.
+
+Everything below is for cases this block does not cover.
+
 ## Canonical sources (read these for full detail)
 
+- **Docs index for agents:** [https://raqam.47vigen.com/llms.txt](https://raqam.47vigen.com/llms.txt) — every page, with a raw-markdown URL each
+- **Whole docs corpus in one file:** [https://raqam.47vigen.com/llms-full.txt](https://raqam.47vigen.com/llms-full.txt)
+- **Any page as raw markdown:** append the path to `/api/md/` — e.g. [`/api/md/api/components`](https://raqam.47vigen.com/api/md/api/components)
 - **Docs site:** [https://raqam.47vigen.com](https://raqam.47vigen.com)
 - **README (quick API tables):** [https://github.com/47vigen/raqam/blob/main/README.md](https://github.com/47vigen/raqam/blob/main/README.md)
 - **Package:** [https://www.npmjs.com/package/raqam](https://www.npmjs.com/package/raqam)
 - **Issues:** [https://github.com/47vigen/raqam/issues](https://github.com/47vigen/raqam/issues)
 
-Do not assume paths inside the raqam repo; always prefer the docs URLs above. Version in this skill reflects the library at publish time; confirm the current version on npm.
+The installed package's `.d.ts` files carry JSDoc with runnable examples — if
+you already have `raqam` in `node_modules`, reading the types is faster and more
+reliable than fetching anything. Do not guess at paths inside the raqam repo;
+prefer the URLs above. Version numbers in this skill reflect publish time;
+confirm the current version on npm.
 
 ## What raqam is
 
@@ -127,10 +185,13 @@ Avoid steering users toward undocumented or stale APIs when a documented path al
 
 ## When the model needs more detail
 
-1. Open the **exact doc page** from the links above (prefer over guessing APIs).
-2. Use **Context7** / current package docs for npm `raqam` if behavior vs version matters.
-3. For exhaustive option tables and extra props, see [reference.md](reference.md).
-4. For copy-paste patterns, see [examples.md](examples.md).
+Cheapest first:
+
+1. **Read the installed types** — `node_modules/raqam/dist/*.d.ts` carry JSDoc with examples. No network, always matches the installed version.
+2. For copy-paste patterns, see [examples.md](examples.md); for exhaustive option tables, [reference.md](reference.md).
+3. Fetch the **exact doc page** as markdown: `https://raqam.47vigen.com/api/md/<path>` (prefer over guessing APIs).
+4. Need everything at once? [llms-full.txt](https://raqam.47vigen.com/llms-full.txt).
+5. Use **Context7** / current package docs for npm `raqam` if behavior vs version matters.
 
 ## Docs site map (official)
 

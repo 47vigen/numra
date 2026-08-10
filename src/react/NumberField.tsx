@@ -476,17 +476,142 @@ const Formatted = forwardRef<HTMLSpanElement, FormattedProps>(function NumberFie
 
 // ── Namespace export ──────────────────────────────────────────────────────────
 
+/**
+ * Headless compound components for a live-formatting number input. This is the
+ * recommended API; reach for {@link useNumberFieldState} + {@link useNumberField}
+ * only when you need to own the DOM entirely.
+ *
+ * raqam ships **no styles**. Every part forwards `className`, `style` and refs,
+ * so bring Tailwind, CSS Modules, or a design system.
+ *
+ * @example Quantity field
+ * ```tsx
+ * import { NumberField } from "raqam";
+ *
+ * <NumberField.Root locale="en-US" defaultValue={1} minValue={0} maxValue={99}>
+ *   <NumberField.Label>Quantity</NumberField.Label>
+ *   <NumberField.Group>
+ *     <NumberField.Decrement>−</NumberField.Decrement>
+ *     <NumberField.Input />
+ *     <NumberField.Increment>+</NumberField.Increment>
+ *   </NumberField.Group>
+ * </NumberField.Root>
+ * ```
+ *
+ * @example Currency, submitted by a native form
+ * ```tsx
+ * <NumberField.Root
+ *   name="price"
+ *   locale="en-US"
+ *   formatOptions={{ style: "currency", currency: "USD" }}
+ *   defaultValue={1234.56}
+ *   minValue={0}
+ * >
+ *   <NumberField.Label>Price</NumberField.Label>
+ *   <NumberField.Group>
+ *     <NumberField.Input />
+ *   </NumberField.Group>
+ *   <NumberField.HiddenInput />
+ * </NumberField.Root>
+ * ```
+ *
+ * @example Persian digits — the locale plugin is a side-effect import
+ * ```tsx
+ * import { NumberField } from "raqam";
+ * import "raqam/locales/fa";
+ *
+ * <NumberField.Root locale="fa-IR" defaultValue={250000}>…</NumberField.Root>
+ * ```
+ *
+ * Rules that are easy to get wrong:
+ * - Configure everything on `Root`. `Input` takes no `value`/`onChange`/`type`.
+ * - Keep DOM order `Decrement, Input, Increment`; RTL flips them visually.
+ * - Native `<form>` submission needs `name` on `Root` **and** a `HiddenInput`,
+ *   because the visible input holds the formatted string.
+ * - Locale plugins (`raqam/locales/fa|ar|bn|hi|th`) are only needed to *type*
+ *   non-Latin digits; `locale` alone already formats them.
+ *
+ * @see https://raqam.47vigen.com/docs/api/components
+ */
 export const NumberField = {
+  /**
+   * Provider and outer `<div>`. Every other `NumberField.*` part must be nested
+   * inside it — they read state from context and throw otherwise.
+   *
+   * Formatting options live here, not on `Input`: `locale`, `formatOptions`
+   * (passed straight to `Intl.NumberFormat`), `minValue` / `maxValue`, `step`,
+   * `defaultValue` (uncontrolled) or `value` + `onValueChange` (controlled).
+   *
+   * Exposes `data-disabled`, `data-invalid`, `data-focused` and `data-scrubbing`
+   * for styling.
+   */
   Root,
+  /**
+   * `<label>` wired to the input via `htmlFor` automatically — do not set your
+   * own `htmlFor` or `id`. Omitting it leaves the field unlabelled; pass
+   * `aria-label` on `Input` instead if the design has no visible label.
+   */
   Label,
+  /**
+   * Optional `<div>` wrapping `Input` with the stepper buttons, carrying
+   * `role="group"` and the field's `aria-labelledby`. Style the visual border
+   * here — the input itself is unstyled and borderless by design.
+   */
   Group,
+  /**
+   * The editable `<input role="spinbutton">`. Formats live as the user types
+   * while keeping the caret in place, and accepts non-Latin digits when the
+   * matching locale plugin is imported.
+   *
+   * `type` is fixed (`text` with `inputMode="decimal"`) — `type="number"` would
+   * defeat formatting. Configure behaviour on `Root`, not here; `value`,
+   * `onChange` and the keyboard model are supplied for you.
+   */
   Input,
+  /**
+   * Stepper button that adds `step`. Press-and-hold repeats. Auto-disables at
+   * `maxValue`. Supply the visible glyph as children (e.g. `+`); the accessible
+   * name and `type="button"` are set for you.
+   */
   Increment,
+  /**
+   * Stepper button that subtracts `step`. Press-and-hold repeats. Auto-disables
+   * at `minValue`. In RTL locales it renders on the visual right automatically —
+   * keep the DOM order Decrement, Input, Increment.
+   */
   Decrement,
+  /**
+   * Hidden `<input>` carrying the raw number for native form submission — the
+   * visible input holds the *formatted* string, so a plain `<form>` POST would
+   * otherwise send `"$1,234.56"`. Requires `name` on `Root`. Renders nothing
+   * without it. Not needed with react-hook-form, Formik, or any controlled setup.
+   */
   HiddenInput,
+  /**
+   * Drag-to-change surface (the Figma-style scrub handle). Pointer-locks on
+   * drag and steps the value by `pixelSensitivity` pixels per `step`. Wrap the
+   * label or an icon in it. Pair with `ScrubAreaCursor` for a custom cursor.
+   */
   ScrubArea,
+  /**
+   * Custom cursor rendered at the virtual pointer position while scrubbing, and
+   * nothing otherwise. Must be nested inside `ScrubArea`.
+   */
   ScrubAreaCursor,
+  /**
+   * Help text, linked to the input through `aria-describedby`. Use it instead of
+   * a bare `<p>` so screen readers announce it with the field.
+   */
   Description,
+  /**
+   * Validation message, linked via `aria-describedby` and rendered only while
+   * the field is invalid. With no children it prints the built-in range/validate
+   * message.
+   */
   ErrorMessage,
+  /**
+   * Read-only `<span>` mirroring the formatted display value, `aria-hidden` so
+   * it is not announced twice. Handy for previews and RTL-safe inline text.
+   */
   Formatted,
 };
