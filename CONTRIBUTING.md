@@ -2,10 +2,15 @@
 
 ## Development setup
 
+**Node 22+** (`.nvmrc` pins it; `jsdom`, the test environment, requires
+`^22.22.2 || ^24.15.0 || >=26.0.0`) and **pnpm 10**. Note this is the floor for
+*developing on* raqam — the published package still supports Node ≥20.9.
+
 ```bash
 # Clone and install
 git clone https://github.com/47vigen/raqam.git
 cd raqam
+nvm use            # or any Node 22+
 pnpm install
 
 # Run tests in watch mode

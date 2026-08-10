@@ -363,6 +363,26 @@ Every component accepts a `render` prop for element replacement:
 )} />
 ```
 
+## 🤖 Using raqam with an AI agent
+
+raqam is built to be readable by coding agents, not just people:
+
+- **[`llms.txt`](https://raqam.47vigen.com/llms.txt)** — an index of every docs
+  page with a raw-markdown URL each. **[`llms-full.txt`](https://raqam.47vigen.com/llms-full.txt)**
+  is the whole corpus in one request. Any page is available as markdown at
+  `https://raqam.47vigen.com/api/md/<path>`.
+- **JSDoc on the shipped types** — hovering `NumberField` in an editor, or
+  reading `node_modules/raqam/dist/*.d.ts`, gives the composition rules and
+  runnable examples with no network access.
+- **An installable skill** — [`skills/raqam`](skills/raqam/SKILL.md) leads with
+  working code and the mistakes worth avoiding:
+
+  ```bash
+  npx skills add https://github.com/47vigen/raqam/tree/main/skills/raqam
+  ```
+
+Contributing with an agent? See [`AGENTS.md`](AGENTS.md).
+
 ## 📦 Bundle size
 
 Measured min + brotli (including dependencies), enforced in CI via

@@ -92,6 +92,19 @@ function parseSpecialNotation(s: string): number | null {
   return null;
 }
 
+/**
+ * Turns {@link useNumberFieldState} into ready-to-spread prop objects:
+ * `inputProps` (WAI-ARIA `spinbutton` role, `aria-valuenow`/`min`/`max`/`text`,
+ * the full keyboard model), `labelProps`, `incrementButtonProps`,
+ * `decrementButtonProps`, `groupProps`, `descriptionProps`, `errorMessageProps`
+ * and `hiddenInputProps`.
+ *
+ * The other half of the Hook API — pass the **same** options object you gave
+ * `useNumberFieldState`, plus a `label`, and an `inputRef` attached to the real
+ * `<input>` (caret control and scrubbing need the node).
+ *
+ * @see https://raqam.47vigen.com/docs/api/use-number-field
+ */
 export function useNumberField(
   props: UseNumberFieldProps,
   state: NumberFieldState,

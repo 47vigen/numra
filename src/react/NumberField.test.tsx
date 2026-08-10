@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NumberField } from "./NumberField.js";
@@ -219,6 +220,27 @@ describe("NumberField ARIA attributes", () => {
     expect(labelId).toBeTruthy();
     expect(screen.getByTestId("group")).toHaveAttribute("aria-labelledby", labelId);
     expect(screen.getByTestId("input")).toHaveAttribute("aria-labelledby", labelId);
+  });
+
+  it("populates a consumer ref on Input without unwiring caret control", async () => {
+    // Input declared forwardRef but ignored it, so `ref` type-checked and
+    // silently stayed null. The context ref drives caret control and scrubbing,
+    // so both must attach.
+    const myRef = React.createRef<HTMLInputElement>();
+    render(
+      <NumberField.Root locale="en-US" defaultValue={1000}>
+        <NumberField.Input data-testid="input" ref={myRef} />
+      </NumberField.Root>
+    );
+
+    expect(myRef.current).toBeInstanceOf(HTMLInputElement);
+    expect(myRef.current).toBe(screen.getByTestId("input"));
+
+    // Caret control still works — it reads the context ref, not the consumer's.
+    const input = screen.getByTestId("input") as HTMLInputElement;
+    await userEvent.click(input);
+    await userEvent.keyboard("{End}5");
+    expect(input.value).toBe("10,005");
   });
 
   it("runs a consumer ref's React 19 cleanup function on unmount", () => {

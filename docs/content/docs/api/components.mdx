@@ -245,23 +245,38 @@ If you also pass `aria-describedby` on `<NumberField.Input>`, your value is
 
 ## `NumberField.ErrorMessage`
 
-Displays validation errors. Has `role="alert"` and is only shown when the field
-is invalid.
+Displays validation errors. Has `role="alert"`.
 
-If you pass no children, it renders `state.validationError` automatically:
+If you pass no children, it renders `state.validationError` automatically —
+and nothing while the field is valid:
 
 ```tsx
 <NumberField.ErrorMessage />
 {/* Renders: "Must be a positive number" */}
 ```
 
-Or supply your own content:
+Or supply your own content — but then **you own visibility**. Children render
+whenever they are truthy, valid field or not, so gate them yourself with
+[`useNumberFieldContext`](/docs/api/advanced-primitives) or you leave a
+permanent `role="alert"` on screen:
 
 ```tsx
-<NumberField.ErrorMessage>
-  Custom error text.
-</NumberField.ErrorMessage>
+function CustomError() {
+  const { state } = useNumberFieldContext()
+  if (state.validationState !== "invalid") return null
+  return <NumberField.ErrorMessage>Custom error text.</NumberField.ErrorMessage>
+}
+
+<NumberField.Root
+  locale="en-US"
+  validate={(v) => (v !== null && v > 0 ? true : "Must be positive")}
+>
+  <NumberField.Input />
+  <CustomError />
+</NumberField.Root>
 ```
+
+`ErrorMessage` does not accept a `render` prop.
 
 ---
 

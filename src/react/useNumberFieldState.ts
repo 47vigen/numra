@@ -51,6 +51,32 @@ function decimalPlaces(n: number): number {
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
+/**
+ * State machine for a number field: the formatted display string, the parsed
+ * numeric value, validation, focus, and scrubbing. Half of the Hook API —
+ * pair it with {@link useNumberField}, which turns this state into ARIA props
+ * and event handlers.
+ *
+ * Prefer `NumberField.*` unless you need to own the DOM. Both hooks must
+ * receive the **same** options object, since each builds its own formatter.
+ *
+ * @example
+ * ```tsx
+ * const options = {
+ *   locale: "en-US",
+ *   formatOptions: { style: "currency", currency: "USD" },
+ *   minValue: 0,
+ *   defaultValue: 1234.56,
+ * } satisfies UseNumberFieldStateOptions;
+ *
+ * const state = useNumberFieldState(options);
+ * const inputRef = useRef<HTMLInputElement>(null);
+ * const { inputProps, labelProps, incrementButtonProps, decrementButtonProps } =
+ *   useNumberField({ ...options, label: "Price" }, state, inputRef);
+ * ```
+ *
+ * @see https://raqam.47vigen.com/docs/api/use-number-field-state
+ */
 export function useNumberFieldState(options: UseNumberFieldStateOptions): NumberFieldState {
   const {
     locale,
