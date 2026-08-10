@@ -1,5 +1,26 @@
 # raqam Changelog
 
+## 0.4.3
+
+### Patch Changes
+
+- 736638a: Document the public React surface with JSDoc that ships in the type
+  declarations. `NumberField` and each of its twelve parts, plus
+  `useNumberFieldState` and `useNumberField`, now carry composition rules and
+  runnable examples — so editor hover and any tool reading
+  `node_modules/raqam/dist/*.d.ts` gets the API without a network round-trip.
+  Types only; no runtime change.
+- 6c49977: `formatToParts` and `formatResult` now render non-finite values as nothing,
+  matching `format`. Previously `format(NaN)` returned `""` while
+  `formatResult(NaN).formatted` returned `"NaN"` — and a configured
+  `prefix`/`suffix` was wrapped around it. Only reachable through `raqam/core`
+  directly; the React bindings never format a non-finite value.
+- 736638a: `NumberField.Input` now populates a consumer `ref`. It was declared with
+  `forwardRef` but ignored the forwarded ref, assigning only the internal caret
+  ref — so `<NumberField.Input ref={myRef} />` type-checked and left `myRef.current`
+  null forever. The consumer ref is merged alongside the internal one, so focus and
+  selection work without unwiring caret control or scrubbing.
+
 ## 0.4.2
 
 ### Patch Changes
