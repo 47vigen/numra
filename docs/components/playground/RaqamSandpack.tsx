@@ -1,11 +1,17 @@
 "use client"
 
-import { SandpackLayout, SandpackProvider } from "@codesandbox/sandpack-react"
+import {
+  SandpackCodeEditor,
+  SandpackLayout,
+  SandpackPreview,
+  SandpackProvider,
+} from "@codesandbox/sandpack-react"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import {
   PLAYGROUND_APP_BY_ID,
   PLAYGROUND_TEMPLATE_META,
+  playgroundStyles,
   RAQAM_VERSION,
   type PlaygroundTemplateId,
 } from "./playground-templates"
@@ -49,13 +55,31 @@ export function RaqamSandpack() {
       </div>
       <div className="w-full overflow-hidden border border-fd-border bg-fd-background [&_.sp-wrapper]:max-w-full">
         <SandpackProvider
+          // Remount on switch: Fast Refresh keeps the old state, so a new
+          // template's defaultValue would otherwise never take effect.
+          key={templateId}
           template="react-ts"
           theme={sandpackTheme}
           customSetup={{ dependencies: { raqam: RAQAM_VERSION } }}
-          files={{ "/App.tsx": PLAYGROUND_APP_BY_ID[templateId] }}
+          files={{
+            "/App.tsx": PLAYGROUND_APP_BY_ID[templateId],
+            "/styles.css": { code: playgroundStyles(sandpackTheme), hidden: true },
+          }}
           options={{ initMode: "user-visible" }}
         >
-          <SandpackLayout style={{ minHeight: 420 }} />
+          {/* SandpackLayout is a bare container — an empty one renders nothing. */}
+          <SandpackLayout>
+            <SandpackCodeEditor
+              showLineNumbers
+              showTabs={false}
+              style={{ height: 420 }}
+            />
+            <SandpackPreview
+              showOpenInCodeSandbox
+              showRefreshButton
+              style={{ height: 420 }}
+            />
+          </SandpackLayout>
         </SandpackProvider>
       </div>
     </div>
