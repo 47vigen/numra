@@ -18,7 +18,7 @@
 | Truly headless | ✅ | ✅ | ❌ | ✅ |
 | i18n digit input (Persian ۱۲۳, Arabic ١٢٣…) | ❌ | ✅ | ❌ | ✅ |
 | WAI-ARIA spinbutton | ✅ | ✅✅ | ⚠️ | ✅✅ |
-| Bundle size | ~10 KB | ~30 KB | ~60 KB | **~2.2 KB core** |
+| Bundle size | ~10 KB | ~30 KB | ~60 KB | **~2.2 KB core · ~9.6 KB full** |
 
 No existing package combines all four. raqam does.
 
