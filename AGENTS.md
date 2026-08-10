@@ -13,7 +13,12 @@ Conventions for coding agents working **in this repository**.
 
 `raqam` — a headless React number input with live, cursor-stable formatting and
 i18n digit support. Published to npm, MIT, **zero runtime dependencies**. React
-18/19 are peer deps. Node ≥20.9, pnpm 10.
+18/19 are peer deps. pnpm 10.
+
+Two different Node floors, don't conflate them: the **published package**
+supports Node ≥20.9 (`engines.node`), while **developing on this repo** needs
+Node 22+ — `jsdom@30`, the vitest environment, requires
+`^22.22.2 || ^24.15.0 || >=26.0.0`. `.nvmrc` pins 22 and CI reads it.
 
 ## Layout
 

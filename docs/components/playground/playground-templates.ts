@@ -140,6 +140,7 @@ export default function App() {
   return (
     <div className="field">
       <NumberField.Root
+        name="price"
         locale="en-US"
         formatOptions={{ style: "currency", currency: "USD" }}
         defaultValue={1234.56}
@@ -152,8 +153,9 @@ export default function App() {
           <NumberField.Input />
           <NumberField.Increment>+</NumberField.Increment>
         </NumberField.Group>
-        {/* Submits the raw number, not the formatted string. */}
-        <NumberField.HiddenInput name="price" />
+        {/* Submits the raw number, not the formatted string.
+            Needs name="price" on Root — HiddenInput takes no props. */}
+        <NumberField.HiddenInput />
       </NumberField.Root>
     </div>
   );

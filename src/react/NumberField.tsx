@@ -280,9 +280,13 @@ interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "
 
 const Input = forwardRef<HTMLInputElement, InputProps>(function NumberFieldInput(
   { render, ...rest },
-  _ref
+  ref
 ) {
   const { aria, state, inputRef } = useNumberFieldContext();
+  // The context ref drives caret control and scrubbing, so it must stay
+  // attached — merge the consumer's ref alongside it rather than letting
+  // either win. Memoized so React doesn't detach/reattach every render.
+  const mergedRef = useMemo(() => mergeRefs(ref, inputRef), [ref, inputRef]);
   // Merge a consumer aria-describedby (passed on <Input>) with the hook's
   // auto-wired value (the mounted <Description> id) instead of letting the
   // rest-spread clobber it — otherwise putting aria-describedby on the input
@@ -291,12 +295,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function NumberFieldInput
     [rest["aria-describedby"], aria.inputProps["aria-describedby"]].filter(Boolean).join(" ") ||
     undefined;
   const el = (
-    <input
-      ref={inputRef as React.RefObject<HTMLInputElement>}
-      {...aria.inputProps}
-      {...rest}
-      aria-describedby={describedBy}
-    />
+    <input ref={mergedRef} {...aria.inputProps} {...rest} aria-describedby={describedBy} />
   );
   return renderWith(el, render, state);
 });
@@ -481,8 +480,9 @@ const Formatted = forwardRef<HTMLSpanElement, FormattedProps>(function NumberFie
  * recommended API; reach for {@link useNumberFieldState} + {@link useNumberField}
  * only when you need to own the DOM entirely.
  *
- * raqam ships **no styles**. Every part forwards `className`, `style` and refs,
- * so bring Tailwind, CSS Modules, or a design system.
+ * raqam ships **no styles** — bring Tailwind, CSS Modules, or a design system.
+ * Every part forwards `className`, `style` and refs, except `HiddenInput`,
+ * which takes no props at all.
  *
  * @example Quantity field
  * ```tsx
@@ -604,9 +604,14 @@ export const NumberField = {
    */
   Description,
   /**
-   * Validation message, linked via `aria-describedby` and rendered only while
-   * the field is invalid. With no children it prints the built-in range/validate
-   * message.
+   * Validation message, linked via `aria-describedby` and carrying
+   * `role="alert"`.
+   *
+   * With **no children** it renders the built-in range/validate message, and
+   * nothing while the field is valid. With **children** you own visibility —
+   * it renders them whenever they are truthy, so gate on
+   * `state.validationState === "invalid"` yourself or you will leave a
+   * permanent alert on screen.
    */
   ErrorMessage,
   /**
