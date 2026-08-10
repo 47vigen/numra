@@ -372,7 +372,7 @@ Measured min + brotli (including dependencies), enforced in CI via
 |-------|------|-----------|
 | `raqam/core` | ~2.23 KB | 2.5 KB |
 | `raqam` (hooks + components) | ~9.62 KB | 12 KB |
-| `raqam/react` | ~9.42 KB | 10 KB |
+| `raqam/react` | ~9.48 KB | 10 KB |
 | `raqam/locales/fa` | 196 B | 0.3 KB |
 
 ## 📄 License

@@ -41,11 +41,13 @@ const FEATURES = [
   },
 ]
 
+// Measured min+brotli by `pnpm size`; bars are scaled against the 12 KB
+// full-bundle budget. Refresh both columns whenever size-limit output moves.
 const BUNDLE = [
-  { name: "raqam/core", size: "~1.84 KB", w: "16%" },
-  { name: "raqam/react", size: "~8.1 KB", w: "68%" },
-  { name: "raqam (full)", size: "~8.3 KB", w: "70%" },
-  { name: "raqam/locales/fa", size: "189 B", w: "4%" },
+  { name: "raqam/core", size: "~2.23 KB", w: "19%" },
+  { name: "raqam/react", size: "~9.48 KB", w: "79%" },
+  { name: "raqam (full)", size: "~9.62 KB", w: "80%" },
+  { name: "raqam/locales/fa", size: "196 B", w: "4%" },
 ]
 
 const EXAMPLE = `import { NumberField } from "raqam";
@@ -91,7 +93,7 @@ export default function HomePage() {
         <div className={`${container} grid items-center gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24`}>
           <div className="flex flex-col items-start gap-6">
           <span className="animate-rise">
-            <Eyebrow>Headless · i18n · ~1.8 KB</Eyebrow>
+            <Eyebrow>Headless · i18n · ~2.2 KB</Eyebrow>
           </span>
           <h1 className="animate-rise font-display text-5xl font-bold leading-[0.98] tracking-[-0.03em] text-fd-foreground sm:text-6xl">
             The number input,
@@ -102,7 +104,7 @@ export default function HomePage() {
             <b className="font-semibold text-fd-foreground">Live formatting</b>,{" "}
             <b className="font-semibold text-fd-foreground">full i18n</b>,{" "}
             <b className="font-semibold text-fd-foreground">headless</b>, and{" "}
-            <b className="font-semibold text-fd-foreground">accessible</b> — in a ~1.8 KB
+            <b className="font-semibold text-fd-foreground">accessible</b> — in a ~2.2 KB
             core. The React number field you stop fighting.
           </p>
           <div className="animate-rise flex flex-wrap items-center gap-3">
