@@ -193,6 +193,9 @@ export function createFormatter(opts: FormatterOptions): Formatter {
   }
 
   function formatToParts(value: number): Intl.NumberFormatPart[] {
+    // Match format(): non-finite renders as nothing, not "NaN"/"∞" — and never
+    // wrapped in a prefix/suffix.
+    if (!Number.isFinite(value)) return [];
     const parts = intlFmt.formatToParts(value);
     if (!opts.prefix && !opts.suffix) return parts;
 
