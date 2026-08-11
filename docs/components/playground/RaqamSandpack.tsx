@@ -16,6 +16,48 @@ import {
   type PlaygroundTemplateId,
 } from "./playground-templates"
 
+/**
+ * Hand-rolled instead of `template="react-ts"`.
+ *
+ * That template declares `react-scripts@4` and `typescript@4`, and Sandpack
+ * merges template dependencies with ours rather than replacing them — so the
+ * sandbox was resolving 20.4 MB of packager payload to render one input.
+ * TypeScript alone is 10.9 MB and react-scripts 2.0 MB, neither of which the
+ * demo runs: the create-react-app environment transpiles TSX itself. Dropping
+ * both leaves react + react-dom + raqam, about 7.5 MB.
+ *
+ * `tsconfig.json` has to stay — without `jsx: react-jsx` the entry never
+ * transpiles and the preview renders blank.
+ */
+const ENTRY = `import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+);
+`
+
+const TSCONFIG = `{
+  "include": ["./**/*"],
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "lib": ["dom", "es2015"],
+    "jsx": "react-jsx"
+  }
+}
+`
+
+const INDEX_HTML = `<!DOCTYPE html>
+<html lang="en">
+  <head><meta charset="UTF-8" /></head>
+  <body><div id="root"></div></body>
+</html>
+`
+
 export function RaqamSandpack() {
   const [templateId, setTemplateId] = useState<PlaygroundTemplateId>("starter")
   const [mounted, setMounted] = useState(false)
@@ -58,17 +100,32 @@ export function RaqamSandpack() {
           // Remount on switch: Fast Refresh keeps the old state, so a new
           // template's defaultValue would otherwise never take effect.
           key={templateId}
-          template="react-ts"
           theme={sandpackTheme}
-          customSetup={{ dependencies: { raqam: RAQAM_VERSION } }}
+          customSetup={{
+            environment: "create-react-app",
+            entry: "/index.tsx",
+            dependencies: {
+              react: "^19.0.0",
+              "react-dom": "^19.0.0",
+              raqam: RAQAM_VERSION,
+            },
+          }}
           files={{
             "/App.tsx": PLAYGROUND_APP_BY_ID[templateId],
             "/styles.css": { code: playgroundStyles(sandpackTheme), hidden: true },
+            "/index.tsx": { code: ENTRY, hidden: true },
+            "/tsconfig.json": { code: TSCONFIG, hidden: true },
+            "/public/index.html": { code: INDEX_HTML, hidden: true },
           }}
           // The default ~40s bundler timeout can't cold-build a freshly
           // published version — every attempt dies mid-download, so the cache
           // never warms and the playground stays broken after each release.
-          options={{ initMode: "user-visible", bundlerTimeOut: 180_000 }}
+          options={{
+            initMode: "user-visible",
+            bundlerTimeOut: 180_000,
+            activeFile: "/App.tsx",
+            visibleFiles: ["/App.tsx"],
+          }}
         >
           {/* SandpackLayout is a bare container — an empty one renders nothing. */}
           <SandpackLayout>
